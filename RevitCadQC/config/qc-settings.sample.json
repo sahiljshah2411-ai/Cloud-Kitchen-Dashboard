@@ -168,6 +168,7 @@
   "ConvertMarkupToDwg": true,
   "IncludeRevitOverlayInCadMarkup": true,
   "IncludeLinkedModels": false,
+  "UseModelCadLinks": true,
   "CreateQcViews": true,
   "LinkCadIntoQcViews": true,
   "Create3dQcView": true,

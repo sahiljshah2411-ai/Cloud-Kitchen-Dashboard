@@ -41,12 +41,12 @@ Plain-text guide with every step: [`README.txt`](README.txt).
 | File | What it does |
 |---|---|
 | `RUN_1_BUILD_AND_INSTALL.bat` | Build, sign, install, verify. Run after every change. Refuses to run while Revit is open. |
-| `RUN_BUILD_ONLY_R2025.bat`, `RUN_BUILD_ONLY_R2022.bat` | Build only into `src\CadQC.Revit\bin\R20xx\`, Revit may stay open (Add-in Manager loop). |
+| `RUN_BUILD_ONLY_R2025.bat`, `_R2022`, `_R2026` | Build only into `bin\R20xx\`, Revit may stay open (Add-in Manager loop). |
 | `RUN_2_TEAMMATE_TRUST_CERT.bat` | Trust the signing certificate on another PC. |
 | `RUN_3_UNINSTALL.bat` | Remove from every Revit version. |
-| `RUN_4_MAKE_TEAM_PACKAGE.bat` | Create `RevitCadQC_TEAM_PACKAGE` (+ zip) on the Desktop. Teammates double-click `INSTALL_FOR_TEAMMATE.BAT`. |
+| `RUN_4_MAKE_TEAM_PACKAGE.bat` | Create `RevitCadQC_TEAM_PACKAGE` (+ zip) on the Desktop with `version.txt` (FORCE silent update), copy it to the folders in `TEAM_DEPLOY_PATHS.txt`. Teammates double-click `INSTALL_FOR_TEAMMATE.bat`; afterwards Revit updates itself (or **Check for Update**). |
 
-Supported: Revit 2022, 2023, 2024 (.NET Framework 4.8), 2025 and 2026 (.NET 8). Manual build: `dotnet build src\CadQC.Revit\CadQC.Revit.csproj -c R2025`.
+Supported: Revit 2022, 2023, 2024 (.NET Framework 4.8), 2025 and 2026 (.NET 8). Manual build: `dotnet build -c R2025` in this folder.
 
 # Use
 
@@ -56,7 +56,11 @@ Supported: Revit 2022, 2023, 2024 (.NET Framework 4.8), 2025 and 2026 (.NET 8). 
 4. Click **Run QC**. When it finishes you can open the Issue Browser, the HTML report or the output folder. The first QC plan opens.
 5. Fix the model and run again. Fixed issues show as Resolved, and new ones as New.
 
-**Clear QC Views** removes every QC view together with its clouds and linked CAD. **Settings** opens the project's settings file. **Export Snapshot** saves the model data so QC can run from the command line.
+**Clear QC Views** removes every QC view together with its clouds and linked CAD. **Settings** opens the project's settings file. **Layer Mapping** / **Layer Dictionary** manage which CAD layers are what. **Export Snapshot** saves the model data so QC can run from the command line. **Version** and **Check for Update** work like AashirTools (team package folder, `version.txt`, FORCE auto-update).
+
+CAD already linked in the model is checked too (tick in the Run dialog): the link's level decides the floor, and its placement is used as an exact alignment candidate.
+
+Office-wide rules (tolerances, thickness equivalents, enforced checks) live in `CadQcConfig.txt`, read live from the team package folder: `KEY=VALUE` is a default, `!KEY=VALUE` is enforced.
 
 # Which CAD layer is what
 
@@ -143,22 +147,32 @@ This writes the same reports and CAD markups. The exit code is 1 when there are 
 
 # Project layout
 
+Same layout as AashirTools: one project at the root, `dotnet build -c R2025` → `bin\R2025\RevitCadQC.dll`.
+
 ```
 RevitCadQC/
-  src/CadQC.Core/        engine, no Revit dependency (netstandard2.0)
+  RevitCadQC.csproj      the add-in (configurations R2022..R2026)
+  RevitCadQC.addin       manifest
+  App.cs                 ribbon + start-up update check
+  Commands/              one file per ribbon button
+  Core/                  engine, no Revit dependency
     Dxf/                 DXF reader (blocks, OCS, hatches, dimensions, MTEXT…)
     Conversion/          DWG reading with ACadSharp (ODA / AutoCAD fallback), cached
     Extraction/          walls, openings, columns, grids, rooms, dimensions, units, plan splitting, text parsing
-    Alignment/           CAD → Revit auto alignment (identity, grids, ICP)
+    Alignment/           CAD → Revit auto alignment (model link, identity, grids, ICP)
     Compare/             the checks
-    Report/              HTML, Excel, CSV, JSON, CAD markup DXF + AutoCAD script, run-to-run tracking
-    Engine/              orchestration, floor/level matching
-  src/CadQC.Revit/       the add-in: ribbon, model extraction, QC views and overrides, issue browser
-  src/CadQC.Cli/         command-line runner
-  tests/CadQC.Tests/     tests on a synthetic 2nd floor plan with planted errors
-  config/                default settings
+    Report/              HTML, Excel, CSV, JSON, CAD markup DWG/DXF + AutoCAD script, run-to-run tracking
+    Engine/              orchestration, floor/level matching, layer scanner
+    Settings/            settings, layer classifier + consultant profiles, CadQcConfig.txt
+    ToolVersion.cs       version + notes (→ version.txt)
+    UpdateCore.cs        Check for Update / FORCE auto-update
+    Revit/               model reading, QC views and overrides, CAD links, issue navigation
+  UI/                    WPF windows (code only)
+  Tests/                 41 tests
+  Cli/                   command-line runner
+  CadLayerDictionary.txt layer rules          CadQcConfig.txt  central office rules
+  TEAM_DEPLOY_PATHS.txt  network folders for the team package
   RUN_*.bat, *.ps1       build, sign, install, team package
-  docs/sample-output/    every output produced from the test drawing
 ```
 
 # Limits

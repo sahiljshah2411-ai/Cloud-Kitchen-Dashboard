@@ -1,0 +1,38 @@
+# ============================================================
+# Revit CAD QC - central office rules. Edited by the BIM lead ONLY.
+# The team package copy is read by every user's tool at run time.
+# Bad / unknown lines are ignored (and listed in the run log).
+#
+#   KEY=VALUE    office default - a project's own settings may change it
+#   !KEY=VALUE   ENFORCED - always wins over project settings
+#
+# KEY = any QC setting name (see config\qc-settings.sample.json), plus
+#   THICKNESS_EQUIV=<cad mm>|<revit mm>,<revit mm>
+#   ROOM_KEYWORD=<word>
+# ============================================================
+CONFIG_VERSION=1
+
+# ---- tolerances (mm) ----
+WallThicknessTol=5
+WallPositionTolMinor=10
+WallPositionTolMajor=50
+MinIssueLength=300
+OpeningWidthTol=20
+ColumnSizeTol=10
+GridOffsetTol=5
+DimensionTol=10
+
+# ---- how CAD wall thickness is compared with Revit: Auto / Total / Core ----
+RevitWallWidthMode=Auto
+
+# ---- accepted CAD <-> Revit thickness pairs (e.g. brick + 2 x 12 mm plaster) ----
+# THICKNESS_EQUIV=230|254
+# THICKNESS_EQUIV=115|139
+
+# ---- extra room names used in your drawings ----
+# ROOM_KEYWORD=MUMTY
+# ROOM_KEYWORD=OTS
+
+# ---- enforced for everybody (uncomment to lock) ----
+# !CheckDimensions=true
+# !ReportExtraRevitElements=true

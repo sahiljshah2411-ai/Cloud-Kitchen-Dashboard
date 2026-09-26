@@ -1,0 +1,8 @@
+# Network folders RUN_4_MAKE_TEAM_PACKAGE copies the team package to (one per line).
+# Teammates' tools read version.txt there for CHECK FOR UPDATE / silent FORCE update,
+# and CadQcConfig.txt there for the central office rules.
+# Lines starting with # are ignored. Unreachable paths are skipped with a warning.
+#
+# Example:
+# L:\BIM\01_ARCHITECTURE\AASHIR ADDIN'S\REVIT CAD QC\Package
+# P:\AEPL-BIM-0000_ _DYNAMO - SCRIPTING\06_AASHIR TOOLS\RevitCadQC_TEAM_PACKAGE

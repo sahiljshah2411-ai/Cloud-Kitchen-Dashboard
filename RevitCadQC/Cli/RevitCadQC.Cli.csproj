@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Command-line runner: same engine as the add-in (..\Core, without Core\Revit). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>CadQC</AssemblyName>
+    <RootNamespace>RevitCadQC.Cli</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Core\**\*.cs" Exclude="..\Core\Revit\**" LinkBase="Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="ACadSharp" Version="[3.6.35]" />
+  </ItemGroup>
+</Project>

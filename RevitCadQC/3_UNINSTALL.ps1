@@ -7,7 +7,7 @@
  <model>_CadQC.json settings and QC reports.
 ====================================================================
 #>
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 trap {
     Write-Host ""
     Write-Host "  ERROR: $($_.Exception.Message)" -ForegroundColor Red
@@ -22,8 +22,10 @@ $removed = 0
 foreach ($v in @("2022", "2023", "2024", "2025", "2026")) {
     $addins = Join-Path $env:APPDATA "Autodesk\Revit\Addins\$v"
     $dir = Join-Path $addins "RevitCadQC"
-    $man = Join-Path $addins "CadQC.addin"
-    if (Test-Path $man) { Remove-Item $man -Force; $removed++ }
+    foreach ($m in "RevitCadQC.addin", "CadQC.addin") {
+        $man = Join-Path $addins $m
+        if (Test-Path $man) { Remove-Item $man -Force; $removed++ }
+    }
     if (Test-Path $dir) { Remove-Item $dir -Recurse -Force; Write-Host "  removed from Revit $v" -ForegroundColor Green }
 }
 if ($removed -eq 0) { Write-Host "  Nothing was installed." }

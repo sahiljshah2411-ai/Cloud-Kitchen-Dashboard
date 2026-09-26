@@ -8,15 +8,15 @@ REM      %APPDATA%\Autodesk\Revit\Addins\2025\RevitCadQC\
 REM  and Revit LOCKS that copy at startup. The copy cannot be replaced
 REM  while Revit is open.
 REM
-REM  But src\CadQC.Revit\bin\R2025\ is NOT locked. Nothing loads from there.
+REM  But bin\R2025\ is NOT locked. Nothing loads from there.
 REM  So this builds and stops - no install, no Revit check, no signing.
 REM
 REM  Loop:
 REM      edit  ->  RUN_BUILD_ONLY_R2025  ->  Add-in Manager (Faceless)
 REM
-REM  Load src\CadQC.Revit\bin\R2025\CadQC.Revit.dll in Add-in Manager once
-REM  (command CadQC.Revit.Commands.RunQcCommand), then Faceless re-runs it
-REM  after every build. No restart.
+REM  Load bin\R2025\RevitCadQC.dll in Add-in Manager once
+REM  (command RevitCadQC.Commands.RunQcCommand), then Faceless re-runs
+REM  it after every build. No restart.
 REM
 REM  Run RUN_1_BUILD_AND_INSTALL as normal when you are ready to deploy.
 REM ====================================================================
@@ -49,7 +49,7 @@ echo.
 echo   Building R2025 only. Revit may stay open.
 echo.
 
-%DOTNET% build "src\CadQC.Revit\CadQC.Revit.csproj" -c R2025 -nologo
+%DOTNET% build RevitCadQC.csproj -c R2025
 if errorlevel 1 (
   echo.
   echo   BUILD FAILED - fix the errors above.
@@ -60,7 +60,7 @@ if errorlevel 1 (
 
 echo.
 echo   BUILD OK
-echo   DLL: %CD%\src\CadQC.Revit\bin\R2025\CadQC.Revit.dll
+echo   DLL: %CD%\bin\R2025\RevitCadQC.dll
 echo.
 echo   Now: Add-in Manager (Manual Mode, Faceless) to re-run.
 echo.
