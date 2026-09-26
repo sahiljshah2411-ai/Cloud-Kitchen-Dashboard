@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 
 namespace RevitCadQC.Commands
 {
+
     public sealed class ProjectOpenAvailability : IExternalCommandAvailability
     {
         public bool IsCommandAvailable(UIApplication app, CategorySet selected) =>

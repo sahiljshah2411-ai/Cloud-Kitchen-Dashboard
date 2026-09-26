@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 
 namespace RevitCadQC.Commands
 {
+    [Transaction(TransactionMode.Manual)]
     public sealed class ClearQcCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData data, ref string message, ElementSet elements)

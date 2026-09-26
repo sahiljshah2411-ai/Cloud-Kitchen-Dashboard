@@ -14,6 +14,8 @@ using Newtonsoft.Json;
 
 namespace RevitCadQC.Commands
 {
+    /// <summary>Review / edit the consultant layer profile for the project's CAD folder without running QC.</summary>
+    [Transaction(TransactionMode.ReadOnly)]
     public sealed class LayerMappingCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData data, ref string message, ElementSet elements)

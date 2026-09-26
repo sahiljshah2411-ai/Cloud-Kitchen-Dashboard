@@ -6,12 +6,13 @@ namespace RevitCadQC.Core
     /// </summary>
     public static class ToolVersion
     {
-        public const string Version = "1.1.0";
+        public const string Version = "1.1.1";
         public const string UpdatedOn = "2026-09-26";
 
         /// <summary>Change notes, one string per line starting with a dash (parsed by 4_MAKE_TEAM_PACKAGE.ps1).</summary>
         public static readonly string[] Notes =
         {
+            "- FIX: every button failed with \"No Transaction Attribute\" - attributes restored + test guard",
             "- DWG read directly (ACadSharp 3.6.35), no converter needed",
             "- Consultant layer profiles + CadLayerDictionary.txt",
             "- Central office rules in CadQcConfig.txt",

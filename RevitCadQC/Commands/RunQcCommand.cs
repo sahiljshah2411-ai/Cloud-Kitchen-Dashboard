@@ -16,6 +16,8 @@ using Newtonsoft.Json;
 
 namespace RevitCadQC.Commands
 {
+    /// <summary>Run QC: read the model, compare with every CAD plan in the folder, highlight in Revit and write the reports.</summary>
+    [Transaction(TransactionMode.Manual)]
     public sealed class RunQcCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData data, ref string message, ElementSet elements)

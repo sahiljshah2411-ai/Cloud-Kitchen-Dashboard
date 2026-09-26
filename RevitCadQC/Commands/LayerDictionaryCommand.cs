@@ -14,6 +14,8 @@ using Newtonsoft.Json;
 
 namespace RevitCadQC.Commands
 {
+    /// <summary>Opens CadLayerDictionary.txt in Notepad (copies the shipped one to %APPDATA% first, so edits survive updates).</summary>
+    [Transaction(TransactionMode.ReadOnly)]
     public sealed class LayerDictionaryCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData data, ref string message, ElementSet elements)

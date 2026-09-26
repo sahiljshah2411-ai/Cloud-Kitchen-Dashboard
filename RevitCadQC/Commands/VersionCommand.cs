@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 
 namespace RevitCadQC.Commands
 {
+    [Transaction(TransactionMode.ReadOnly)]
     public sealed class VersionCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData data, ref string message, ElementSet elements)

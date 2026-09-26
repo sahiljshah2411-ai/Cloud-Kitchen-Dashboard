@@ -14,6 +14,8 @@ using Newtonsoft.Json;
 
 namespace RevitCadQC.Commands
 {
+    /// <summary>Exports the model snapshot so QC can be re-run from the command line (CadQC.exe) without Revit.</summary>
+    [Transaction(TransactionMode.ReadOnly)]
     public sealed class ExportSnapshotCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData data, ref string message, ElementSet elements)

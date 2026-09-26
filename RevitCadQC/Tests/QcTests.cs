@@ -266,6 +266,27 @@ namespace RevitCadQC.Tests
         }
 
         [Fact]
+        public void Every_ribbon_command_has_a_Transaction_attribute()
+        {
+            // Revit refuses to run an IExternalCommand without [Transaction(...)] ("No Transaction Attribute").
+            var dir = new DirectoryInfo(AppContext.BaseDirectory);
+            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "RevitCadQC.csproj"))) dir = dir.Parent;
+            Assert.NotNull(dir);
+            var files = Directory.GetFiles(Path.Combine(dir.FullName, "Commands"), "*.cs");
+            Assert.NotEmpty(files);
+            foreach (var f in files)
+            {
+                var src = File.ReadAllText(f);
+                foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(src, @"class\s+(\w+)\s*:\s*IExternalCommand\b"))
+                {
+                    var before = src.Substring(0, m.Index);
+                    var lastBrace = Math.Max(before.LastIndexOf('}'), before.LastIndexOf('{'));
+                    Assert.True(before.Substring(lastBrace + 1).Contains("[Transaction("), $"{m.Groups[1].Value} in {Path.GetFileName(f)} has no [Transaction(...)] attribute");
+                }
+            }
+        }
+
+        [Fact]
         public void Unitless_drawing_in_metres_is_detected()
         {
             var r = RunEngine(unitScale: 1000);

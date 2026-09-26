@@ -5,7 +5,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Company>CadQC</Company>
     <Product>Revit CAD Technical QC</Product>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
