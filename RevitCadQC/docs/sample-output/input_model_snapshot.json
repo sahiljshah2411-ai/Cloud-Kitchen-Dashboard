@@ -1,0 +1,454 @@
+{
+  "ProjectName": "Test Tower",
+  "DocumentPath": "test.rvt",
+  "CreatedUtc": "2026-09-26T03:23:40.2233084Z",
+  "RevitVersion": null,
+  "Levels": [
+    {
+      "Id": "1",
+      "Name": "Ground Floor",
+      "ElevationMm": 0.0,
+      "IsBuildingStory": true
+    },
+    {
+      "Id": "2",
+      "Name": "First Floor",
+      "ElevationMm": 3000.0,
+      "IsBuildingStory": true
+    },
+    {
+      "Id": "3",
+      "Name": "Second Floor",
+      "ElevationMm": 6000.0,
+      "IsBuildingStory": true
+    }
+  ],
+  "Walls": [
+    {
+      "Id": "1000",
+      "Centerline": {
+        "A": {
+          "X": 100042.0929214352,
+          "Y": -49842.90707856479
+        },
+        "B": {
+          "X": 108503.16111640917,
+          "Y": -44957.90707856479
+        }
+      },
+      "Thickness": 230.0,
+      "CoreThickness": null,
+      "AnnotatedThickness": null,
+      "AnnotationText": null,
+      "TypeName": "Brick 230",
+      "Function": null,
+      "IsCurtain": false,
+      "IsStructural": false,
+      "IsArcSegment": false,
+      "BaseElevationMm": 0.0,
+      "TopElevationMm": 0.0,
+      "Levels": [
+        "Second Floor"
+      ],
+      "BaseLevel": "Second Floor",
+      "Layer": null,
+      "Handles": [],
+      "Length": 9770.0
+    },
+    {
+      "Id": "1001",
+      "Centerline": {
+        "A": {
+          "X": 108503.16111640917,
+          "Y": -44957.90707856479
+        },
+        "B": {
+          "X": 104618.16111640917,
+          "Y": -38228.889691159704
+        }
+      },
+      "Thickness": 230.0,
+      "CoreThickness": null,
+      "AnnotatedThickness": null,
+      "AnnotationText": null,
+      "TypeName": "Brick 230",
+      "Function": null,
+      "IsCurtain": false,
+      "IsStructural": false,
+      "IsArcSegment": false,
+      "BaseElevationMm": 0.0,
+      "TopElevationMm": 0.0,
+      "Levels": [
+        "Second Floor"
+      ],
+      "BaseLevel": "Second Floor",
+      "Layer": null,
+      "Handles": [],
+      "Length": 7770.000000000001
+    },
+    {
+      "Id": "1002",
+      "Centerline": {
+        "A": {
+          "X": 104618.16111640917,
+          "Y": -38228.889691159704
+        },
+        "B": {
+          "X": 96157.0929214352,
+          "Y": -43113.889691159704
+        }
+      },
+      "Thickness": 230.0,
+      "CoreThickness": null,
+      "AnnotatedThickness": null,
+      "AnnotationText": null,
+      "TypeName": "Brick 230",
+      "Function": null,
+      "IsCurtain": false,
+      "IsStructural": false,
+      "IsArcSegment": false,
+      "BaseElevationMm": 0.0,
+      "TopElevationMm": 0.0,
+      "Levels": [
+        "Second Floor"
+      ],
+      "BaseLevel": "Second Floor",
+      "Layer": null,
+      "Handles": [],
+      "Length": 9770.0
+    },
+    {
+      "Id": "1003",
+      "Centerline": {
+        "A": {
+          "X": 96157.0929214352,
+          "Y": -43113.889691159704
+        },
+        "B": {
+          "X": 100042.0929214352,
+          "Y": -49842.90707856479
+        }
+      },
+      "Thickness": 230.0,
+      "CoreThickness": null,
+      "AnnotatedThickness": null,
+      "AnnotationText": null,
+      "TypeName": "Brick 230",
+      "Function": null,
+      "IsCurtain": false,
+      "IsStructural": false,
+      "IsArcSegment": false,
+      "BaseElevationMm": 0.0,
+      "TopElevationMm": 0.0,
+      "Levels": [
+        "Second Floor"
+      ],
+      "BaseLevel": "Second Floor",
+      "Layer": null,
+      "Handles": [],
+      "Length": 7770.000000000001
+    },
+    {
+      "Id": "1004",
+      "Centerline": {
+        "A": {
+          "X": 104272.6270189222,
+          "Y": -47400.40707856479
+        },
+        "B": {
+          "X": 100387.6270189222,
+          "Y": -40671.389691159704
+        }
+      },
+      "Thickness": 115.0,
+      "CoreThickness": null,
+      "AnnotatedThickness": null,
+      "AnnotationText": null,
+      "TypeName": "Brick 115",
+      "Function": null,
+      "IsCurtain": false,
+      "IsStructural": false,
+      "IsArcSegment": false,
+      "BaseElevationMm": 0.0,
+      "TopElevationMm": 0.0,
+      "Levels": [
+        "Second Floor"
+      ],
+      "BaseLevel": "Second Floor",
+      "Layer": null,
+      "Handles": [],
+      "Length": 7770.000000000001
+    },
+    {
+      "Id": "1005",
+      "Centerline": {
+        "A": {
+          "X": 98099.5929214352,
+          "Y": -46478.398384862245
+        },
+        "B": {
+          "X": 102330.1270189222,
+          "Y": -44035.898384862245
+        }
+      },
+      "Thickness": 200.0,
+      "CoreThickness": null,
+      "AnnotatedThickness": null,
+      "AnnotationText": null,
+      "TypeName": "Brick 230",
+      "Function": null,
+      "IsCurtain": false,
+      "IsStructural": false,
+      "IsArcSegment": false,
+      "BaseElevationMm": 0.0,
+      "TopElevationMm": 0.0,
+      "Levels": [
+        "Second Floor"
+      ],
+      "BaseLevel": "Second Floor",
+      "Layer": null,
+      "Handles": [],
+      "Length": 4885.000000000007
+    },
+    {
+      "Id": "1006",
+      "Centerline": {
+        "A": {
+          "X": 106437.69052838329,
+          "Y": -46150.40707856479
+        },
+        "B": {
+          "X": 104995.19052838329,
+          "Y": -43651.92378864669
+        }
+      },
+      "Thickness": 115.0,
+      "CoreThickness": null,
+      "AnnotatedThickness": null,
+      "AnnotationText": null,
+      "TypeName": "Brick 115",
+      "Function": null,
+      "IsCurtain": false,
+      "IsStructural": false,
+      "IsArcSegment": false,
+      "BaseElevationMm": 0.0,
+      "TopElevationMm": 0.0,
+      "Levels": [
+        "Second Floor"
+      ],
+      "BaseLevel": "Second Floor",
+      "Layer": null,
+      "Handles": [],
+      "Length": 2885.0
+    }
+  ],
+  "Openings": [
+    {
+      "Id": "2001",
+      "Kind": 0,
+      "Position": {
+        "X": 103605.1270189222,
+        "Y": -46244.263164512566
+      },
+      "Width": 1000.0,
+      "Height": null,
+      "SillHeight": null,
+      "Angle": 0.0,
+      "Mark": null,
+      "TypeMark": "D1",
+      "TypeName": "Single 1000",
+      "FamilyName": null,
+      "HostWallId": "1004",
+      "LevelName": "Second Floor",
+      "Layer": null,
+      "BlockName": null,
+      "Handle": null,
+      "Tag": null,
+      "WidthSource": null
+    }
+  ],
+  "Columns": [
+    {
+      "Id": "3001",
+      "Center": {
+        "X": 101165.06350946109,
+        "Y": -47017.94919243112
+      },
+      "Width": 300.0,
+      "Depth": 450.0,
+      "Angle": 0.5235987755982988,
+      "IsCircular": false,
+      "IsStructural": false,
+      "TypeName": "300x450",
+      "LevelName": "Second Floor",
+      "Levels": [],
+      "Layer": null,
+      "Handle": null,
+      "Mark": null,
+      "Outline": [],
+      "MinSize": 300.0,
+      "MaxSize": 450.0
+    },
+    {
+      "Id": "3002",
+      "Center": {
+        "X": 105547.15205261036,
+        "Y": -44487.94919243112
+      },
+      "Width": 300.0,
+      "Depth": 300.0,
+      "Angle": 0.5235987755982988,
+      "IsCircular": false,
+      "IsStructural": false,
+      "TypeName": "300x300",
+      "LevelName": "Second Floor",
+      "Levels": [],
+      "Layer": null,
+      "Handle": null,
+      "Mark": null,
+      "Outline": [],
+      "MinSize": 300.0,
+      "MaxSize": 300.0
+    }
+  ],
+  "Rooms": [
+    {
+      "Id": "5001",
+      "Name": "Bedroom",
+      "Number": "201",
+      "LevelName": "Second Floor",
+      "Position": {
+        "X": 99165.06350946109,
+        "Y": -43553.84757729337
+      },
+      "Boundary": [
+        {
+          "X": 98149.18584287041,
+          "Y": -46334.2958444838
+        },
+        {
+          "X": 102230.33055820459,
+          "Y": -43978.0458444838
+        },
+        {
+          "X": 100395.33055820459,
+          "Y": -40799.73261259491
+        },
+        {
+          "X": 96314.18584287041,
+          "Y": -43155.98261259491
+        }
+      ],
+      "AreaM2": 17.2,
+      "SizeA": null,
+      "SizeB": null,
+      "SizeText": null,
+      "Layer": null,
+      "Handle": null,
+      "IsPlaced": true,
+      "IsEnclosed": true
+    },
+    {
+      "Id": "5002",
+      "Name": "Dining",
+      "Number": "202",
+      "LevelName": "Second Floor",
+      "Position": {
+        "X": 101165.06350946109,
+        "Y": -47017.94919243112
+      },
+      "Boundary": [
+        {
+          "X": 100084.18584287041,
+          "Y": -49685.81415712958
+        },
+        {
+          "X": 104165.33055820459,
+          "Y": -47329.56415712958
+        },
+        {
+          "X": 102330.33055820459,
+          "Y": -44151.25092524069
+        },
+        {
+          "X": 98249.18584287041,
+          "Y": -46507.50092524069
+        }
+      ],
+      "AreaM2": 17.3,
+      "SizeA": null,
+      "SizeB": null,
+      "SizeText": null,
+      "Layer": null,
+      "Handle": null,
+      "IsPlaced": true,
+      "IsEnclosed": true
+    }
+  ],
+  "Grids": [
+    {
+      "Id": "4001",
+      "Name": "1",
+      "Line": {
+        "A": {
+          "X": 101599.5929214352,
+          "Y": -52540.57621135331
+        },
+        "B": {
+          "X": 94599.5929214352,
+          "Y": -40416.22055837118
+        }
+      },
+      "Layer": null,
+      "Handle": null
+    },
+    {
+      "Id": "4002",
+      "Name": "2",
+      "Line": {
+        "A": {
+          "X": 110060.66111640917,
+          "Y": -47655.57621135332
+        },
+        "B": {
+          "X": 103060.66111640917,
+          "Y": -35531.22055837118
+        }
+      },
+      "Layer": null,
+      "Handle": null
+    },
+    {
+      "Id": "4003",
+      "Name": "A",
+      "Line": {
+        "A": {
+          "X": 97344.42378864669,
+          "Y": -51400.40707856479
+        },
+        "B": {
+          "X": 111200.83024919771,
+          "Y": -43400.40707856479
+        }
+      },
+      "Layer": null,
+      "Handle": null
+    },
+    {
+      "Id": "4004",
+      "Name": "B",
+      "Line": {
+        "A": {
+          "X": 93459.42378864669,
+          "Y": -44671.389691159704
+        },
+        "B": {
+          "X": 107315.83024919771,
+          "Y": -36671.389691159704
+        }
+      },
+      "Layer": null,
+      "Handle": null
+    }
+  ]
+}

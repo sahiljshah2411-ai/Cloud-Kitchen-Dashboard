@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B3DEE217-D37B-4AEF-ABBC-3F6F41F6639C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CadQC.Core", "src\CadQC.Core\CadQC.Core.csproj", "{44B54685-1DC5-4EEC-9BEB-A5DDD2D35173}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CadQC.Cli", "src\CadQC.Cli\CadQC.Cli.csproj", "{FBB948B2-D9B9-49BC-9365-373301F10575}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DEE58FCB-0197-4AAC-B48E-CAC2091FEA08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CadQC.Tests", "tests\CadQC.Tests\CadQC.Tests.csproj", "{76C2776B-1557-4064-A488-E570D3E0B539}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CadQC.Revit", "src\CadQC.Revit\CadQC.Revit.csproj", "{9EC33AA0-EC59-4FB6-8635-AA01E805C3A7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44B54685-1DC5-4EEC-9BEB-A5DDD2D35173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44B54685-1DC5-4EEC-9BEB-A5DDD2D35173}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44B54685-1DC5-4EEC-9BEB-A5DDD2D35173}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44B54685-1DC5-4EEC-9BEB-A5DDD2D35173}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBB948B2-D9B9-49BC-9365-373301F10575}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBB948B2-D9B9-49BC-9365-373301F10575}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBB948B2-D9B9-49BC-9365-373301F10575}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBB948B2-D9B9-49BC-9365-373301F10575}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76C2776B-1557-4064-A488-E570D3E0B539}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76C2776B-1557-4064-A488-E570D3E0B539}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76C2776B-1557-4064-A488-E570D3E0B539}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76C2776B-1557-4064-A488-E570D3E0B539}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EC33AA0-EC59-4FB6-8635-AA01E805C3A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EC33AA0-EC59-4FB6-8635-AA01E805C3A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EC33AA0-EC59-4FB6-8635-AA01E805C3A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EC33AA0-EC59-4FB6-8635-AA01E805C3A7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{44B54685-1DC5-4EEC-9BEB-A5DDD2D35173} = {B3DEE217-D37B-4AEF-ABBC-3F6F41F6639C}
+		{FBB948B2-D9B9-49BC-9365-373301F10575} = {B3DEE217-D37B-4AEF-ABBC-3F6F41F6639C}
+		{76C2776B-1557-4064-A488-E570D3E0B539} = {DEE58FCB-0197-4AAC-B48E-CAC2091FEA08}
+		{9EC33AA0-EC59-4FB6-8635-AA01E805C3A7} = {B3DEE217-D37B-4AEF-ABBC-3F6F41F6639C}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Tower · CAD vs Revit QC</title>
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--ink:#1c2230;--muted:#667085;--line:#e3e6eb;--accent:#1f3a5f;--cad:#8a93a3;--rvt:#2f6fde;
+--crit:#d92d20;--major:#f58a07;--minor:#d4a500;--info:#1d8cb8;--ok:#12a150;--grid:#b39ddb}
+@media (prefers-color-scheme:dark){:root{--bg:#10131a;--panel:#171b24;--ink:#e6e9ef;--muted:#98a2b3;--line:#2a3140;--accent:#9dbcf0;--cad:#6b7385;--rvt:#5b9bff}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:20px 24px 12px;border-bottom:1px solid var(--line);background:var(--panel)}
+h1{margin:0 0 4px;font-size:20px}h2{font-size:15px;margin:0 0 10px}.muted{color:var(--muted)}
+main{padding:16px 24px;max-width:1700px;margin:0 auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card b{display:block;font-size:26px;line-height:1.1}.card span{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.sev-Critical{color:var(--crit)}.sev-Major{color:var(--major)}.sev-Minor{color:var(--minor)}.sev-Info{color:var(--info)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px}
+@media (max-width:1100px){.grid2{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tab{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer;font-size:13px}
+.tab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.viewer{position:relative;height:620px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg);touch-action:none}
+.viewer svg{width:100%;height:100%;cursor:grab;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;margin:8px 0}.legend label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.sw{width:14px;height:4px;border-radius:2px;display:inline-block}
+.meta{font-size:12px;color:var(--muted);margin-top:8px}
+.counts{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.counts td,.counts th{border-bottom:1px solid var(--line);padding:3px 6px;text-align:right}.counts th:first-child,.counts td:first-child{text-align:left}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+select,input{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font:inherit;font-size:13px}
+.list{max-height:700px;overflow:auto}
+table.issues{width:100%;border-collapse:collapse;font-size:13px}
+table.issues th{position:sticky;top:0;background:var(--panel);text-align:left;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);padding:6px;cursor:pointer}
+table.issues td{border-bottom:1px solid var(--line);padding:6px;vertical-align:top}
+table.issues tr{cursor:pointer}table.issues tr:hover td{background:rgba(127,127,127,.08)}table.issues tr.sel td{background:rgba(47,111,222,.14)}
+.pill{display:inline-block;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;color:#fff}
+.pill.Critical{background:var(--crit)}.pill.Major{background:var(--major)}.pill.Minor{background:var(--minor);color:#222}.pill.Info{background:var(--info)}
+.st{font-size:11px;color:var(--muted)}.st.New{color:var(--crit);font-weight:600}.st.Resolved{color:var(--ok)}
+.detail{font-size:13px;margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:8px;min-height:60px}
+.detail dt{color:var(--muted);font-size:11px;text-transform:uppercase}.detail dd{margin:0 0 6px}
+details{margin-top:16px}pre{white-space:pre-wrap;font-size:12px;color:var(--muted)}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;display:flex}.bar i{display:block;height:100%}
+@media print{.viewer{height:420px}.list{max-height:none}}
+</style></head><body>
+<header><h1 id="h"></h1><div class="muted" id="sub"></div></header>
+<main>
+<div class="cards" id="cards"></div>
+<div class="grid2">
+ <section class="panel">
+  <h2>Plan overlay</h2>
+  <div class="tabs" id="tabs"></div>
+  <div class="legend">
+   <label><input type="checkbox" id="lCad" checked><span class="sw" style="background:var(--cad)"></span>CAD linework</label>
+   <label><input type="checkbox" id="lRvt" checked><span class="sw" style="background:var(--rvt)"></span>Revit walls &amp; columns</label>
+   <label><input type="checkbox" id="lGrid"><span class="sw" style="background:var(--grid)"></span>Revit grids</label>
+   <label><input type="checkbox" id="lIss" checked><span class="sw" style="background:var(--crit)"></span>Issues</label>
+   <button class="tab" id="fit">Fit</button>
+  </div>
+  <div class="viewer" id="viewer"><svg id="svg" xmlns="http://www.w3.org/2000/svg"><g id="world"></g></svg></div>
+  <div class="meta" id="fmeta"></div>
+  <table class="counts" id="fcounts"></table>
+ </section>
+ <section class="panel">
+  <h2>Issue register</h2>
+  <div class="filters">
+   <select id="fFloor"></select><select id="fSev"></select><select id="fCat"></select><select id="fSt"></select>
+   <input id="fTxt" placeholder="Search…" style="flex:1;min-width:120px">
+  </div>
+  <div class="muted" id="shown" style="font-size:12px;margin-bottom:6px"></div>
+  <div class="list"><table class="issues"><thead><tr><th data-k="id">ID</th><th data-k="sev">Severity</th><th data-k="cat">Category</th><th data-k="title">Issue</th><th data-k="st">Status</th></tr></thead><tbody id="tb"></tbody></table></div>
+  <div class="detail" id="detail"><span class="muted">Select an issue to see details.</span></div>
+ </section>
+</div>
+<details><summary>Run log</summary><pre id="log"></pre></details>
+</main>
+<script>
+const D={"project":"Test Tower","revitFile":"test.rvt","cadFolder":"/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6","run":"26 Sep 2026, 03:23","duration":0.5,"version":"1.0.0","log":["DWG converter: none","2ND FLOOR PLAN.dxf: 35 curves, 11 texts, 2 block refs, 1 dims. Units from drawing header (INSUNITS=4), confirmed by wall spacing analysis.","Plan found: 2ND FLOOR PLAN.dxf [SECOND FLOOR PLAN] floors=2"],"floors":[{"floor":"2nd Floor","level":"Second Floor","code":"L02","cad":"2ND FLOOR PLAN.dxf","title":"SECOND FLOOR PLAN","units":"Units from drawing header (INSUNITS=4), confirmed by wall spacing analysis.","align":{"method":"Grid intersections","match":91.1,"rms":4.3,"ok":true},"cadCounts":{"Walls":9,"Doors":1,"Windows":1,"Columns":2,"Rooms":2,"Grids":4,"Dimensions":1},"rvtCounts":{"Walls":7,"Doors":1,"Windows":0,"Columns":2,"Rooms":2,"Grids":4},"notes":[],"geo":{"cad":[100000,-50000,106063,-46500,107102,-45900,108661,-45000,100084,-49685,105948,-46301,106987,-45701,108347,-44916,108661,-45000,104661,-38072,108347,-44916,104577,-38386,104661,-38072,96001,-43071,104577,-38386,96315,-43155,96001,-43071,100000,-50000,96315,-43155,100084,-49685,104166,-47329,103781,-46663,103331,-45883,100396,-40799,104265,-47272,103880,-46605,103430,-45826,100496,-40742,98257,-46520,102338,-44164,98142,-46321,102223,-43965,101409,-42325,105491,-39969,101352,-42225,105433,-39869,103830,-46634,103051,-47084,103381,-45854,103252,-45944,103252,-45944,103141,-46055,103141,-46055,103051,-46184,103051,-46184,102985,-46326,102985,-46326,102944,-46477,102944,-46477,102930,-46634,102930,-46634,102944,-46790,102944,-46790,102985,-46942,102985,-46942,103051,-47084,106063,-46500,107102,-45900,106005,-46400,107044,-45801,105948,-46301,106987,-45701,106063,-46500,105948,-46301,107102,-45900,106987,-45701,101148,-47287,101408,-47137,101408,-47137,101183,-46748,101183,-46748,100923,-46898,100923,-46898,101148,-47287,105441,-44723,105701,-44573,105701,-44573,105551,-44313,105551,-44313,105291,-44463,105291,-44463,105441,-44723],"walls":[[99985,-49743,108446,-44858,108561,-45058,100100,-49942],[108404,-45015,104519,-38286,104718,-38171,108603,-44900],[104676,-38328,96215,-43213,96100,-43014,104561,-38129],[96257,-43056,100142,-49785,99942,-49900,96058,-43171],[104223,-47429,100338,-40700,100437,-40643,104322,-47372],[98050,-46392,102280,-43949,102380,-44123,98150,-46565],[106388,-46179,104945,-43681,105045,-43623,106487,-46122]],"cols":[[101148,-47288,101407,-47138,101182,-46748,100923,-46898],[105492,-44693,105752,-44543,105602,-44283,105342,-44433]],"grids":[[101600,-52541,94600,-40416],[110061,-47656,103061,-35531],[97344,-51400,111201,-43400],[93459,-44671,107316,-36671]],"box":[96001,-50000,108661,-38072]}}],"issues":[{"id":"L02-WAL-002","st":"New","sev":"Critical","floor":"2nd Floor","level":"Second Floor","cat":"Wall","type":"Missing in Revit","title":"Wall 115 mm thick, 4713 mm long not modelled in Revit","desc":"The CAD wall on layer 'A-WALL' (115 mm thick, 4713 mm long) has no Revit wall within 400 mm.","cadV":"115 mm × 4713 mm","rvtV":"—","delta":4712.5,"x":103421.0,"y":-41097.0,"r":1500.0,"path":[101381,-42275,105462,-39919],"ids":[],"layer":"A-WALL","cadFile":"2ND FLOOR PLAN.dxf"},{"id":"L02-COL-001","st":"New","sev":"Major","floor":"2nd Floor","level":"Second Floor","cat":"Column","type":"Position offset","title":"Column shifted 60 mm","desc":"Column centre differs by 59.6 mm between CAD and Revit.","delta":59.6,"x":105547.0,"y":-44488.0,"r":400.0,"path":[105496,-44518,105547,-44488],"ids":["3002"],"layer":"S-COLS","cadFile":"2ND FLOOR PLAN.dxf"},{"id":"L02-DR-001","st":"New","sev":"Major","floor":"2nd Floor","level":"Second Floor","cat":"Door","type":"Width mismatch","title":"Door width: CAD 900 mm vs Revit 1000 mm","desc":"Door D1: CAD width 900 mm (from swing arc radius), Revit 'Single 1000' width 1000 mm.","cadV":"900 mm","rvtV":"1000 mm — Single 1000","delta":100.0,"x":103605.0,"y":-46244.0,"r":630.0,"ids":["2001"],"layer":"A-DOOR","cadFile":"2ND FLOOR PLAN.dxf"},{"id":"L02-WAL-001","st":"New","sev":"Major","floor":"2nd Floor","level":"Second Floor","cat":"Wall","type":"Thickness mismatch","title":"Wall thickness: CAD 230 mm vs Revit 200 mm","desc":"CAD wall (230 mm drawn, note \"230 THK. BRICK WALL\") is modelled with Revit type 'Brick 230' (200 mm) over 4713 mm.","cadV":"230 mm drawn, note \"230 THK. BRICK WALL\"","rvtV":"200 mm — Brick 230","delta":-30.0,"x":100240.0,"y":-45242.0,"r":500.0,"path":[98200,-46420,102281,-44064],"ids":["1005"],"layer":"A-WALL","cadFile":"2ND FLOOR PLAN.dxf"},{"id":"L02-WAL-003","st":"New","sev":"Major","floor":"2nd Floor","level":"Second Floor","cat":"Wall","type":"Extra in Revit (not in CAD)","title":"Revit wall 'Brick 115' (2885 mm) not in CAD","desc":"Revit wall 1006 of type 'Brick 115' has no matching wall in the CAD plan.","cadV":"—","rvtV":"Brick 115, 2885 mm","delta":2885.0,"x":105716.0,"y":-44901.0,"r":1442.0,"path":[106438,-46150,104995,-43652],"ids":["1006"],"cadFile":"2ND FLOOR PLAN.dxf"},{"id":"L02-WIN-001","st":"New","sev":"Major","floor":"2nd Floor","level":"Second Floor","cat":"Window","type":"Missing in Revit","title":"Window W1 (1200 mm) missing in Revit","desc":"CAD window (block 'WIN_1200', layer 'A-GLAZ', width from block extents) has no Revit window within 600 mm.","cadV":"W1 1200 mm","rvtV":"—","delta":1200.0,"x":106525.0,"y":-46101.0,"r":840.0,"ids":[],"layer":"A-GLAZ","cadFile":"2ND FLOOR PLAN.dxf"},{"id":"L02-DIM-001","st":"New","sev":"Minor","floor":"2nd Floor","level":"Second Floor","cat":"Dimension","type":"Dimension mismatch","title":"Dimension 230 mm in CAD, 200 mm in Revit","desc":"CAD dimension between wall face and wall face reads 230 mm; the same references in Revit are 200 mm apart.","cadV":"230 mm","rvtV":"200 mm","delta":-30.0,"x":98866.0,"y":-46035.0,"r":450.0,"path":[98924,-46135,98809,-45936],"ids":["1005"],"layer":"A-ANNO-DIMS","cadFile":"2ND FLOOR PLAN.dxf"},{"id":"L02-MDL-001","st":"New","sev":"Minor","floor":"2nd Floor","level":"Second Floor","cat":"Revit Model","type":"Type name does not match width","title":"Type 'Brick 230' is actually 200 mm wide","desc":"The wall type name suggests 230 mm but the type width is 200 mm.","rvtV":"Brick 230: 200 mm","delta":-30.0,"x":100215.0,"y":-45257.0,"r":400.0,"ids":["1005"],"cadFile":"2ND FLOOR PLAN.dxf"},{"id":"L02-RM-001","st":"New","sev":"Minor","floor":"2nd Floor","level":"Second Floor","cat":"Room","type":"Name mismatch","title":"Room name: CAD 'KITCHEN' vs Revit 'Dining'","desc":"Revit room 202 is named 'Dining'.","cadV":"KITCHEN","rvtV":"202 Dining","x":99540.0,"y":-46801.0,"r":900.0,"ids":["5002"],"layer":"A-AREA-IDEN","cadFile":"2ND FLOOR PLAN.dxf"}]};
+const $=id=>document.getElementById(id);
+const SEV=['Critical','Major','Minor','Info'];
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('h').textContent=(D.project||'Revit model')+' — CAD vs Revit technical QC';
+$('sub').textContent=D.run+' · '+(D.revitFile||'')+' · CAD: '+(D.cadFolder||'')+' · '+D.duration+' s · v'+D.version;
+$('log').textContent=(D.log||[]).join('\n');
+const open=D.issues.filter(i=>i.st!=='Resolved');
+function card(v,l,cls){return `<div class="card"><b class="${cls||''}">${v}</b><span>${l}</span></div>`}
+let cards=card(open.length,'Open issues');
+SEV.forEach(s=>cards+=card(open.filter(i=>i.sev===s).length,s,'sev-'+s));
+cards+=card(D.issues.filter(i=>i.st==='New').length,'New since last run');
+cards+=card(D.issues.filter(i=>i.st==='Resolved').length,'Resolved','');
+cards+=card(D.floors.length,'Floors checked');
+$('cards').innerHTML=cards;
+
+// ---------- filters ----------
+function opts(el,label,vals){el.innerHTML=`<option value="">${label}: all</option>`+vals.map(v=>`<option>${esc(v)}</option>`).join('')}
+opts($('fFloor'),'Floor',[...new Set(D.issues.map(i=>i.floor).filter(Boolean))]);
+opts($('fSev'),'Severity',SEV);
+opts($('fCat'),'Category',[...new Set(D.issues.map(i=>i.cat))].sort());
+opts($('fSt'),'Status',['New','Open','Accepted','Resolved']);
+let sortK='sev',sortDir=1,selId=null,curFloor=0;
+function filtered(){
+ const f=$('fFloor').value,s=$('fSev').value,c=$('fCat').value,st=$('fSt').value,t=$('fTxt').value.toLowerCase();
+ return D.issues.filter(i=>(!f||i.floor===f)&&(!s||i.sev===s)&&(!c||i.cat===c)&&(!st||i.st===st)&&
+   (!t||[i.id,i.title,i.desc,i.type,i.cadV,i.rvtV,(i.ids||[]).join(' ')].join(' ').toLowerCase().includes(t)))
+ .sort((a,b)=>{let x=a[sortK],y=b[sortK];if(sortK==='sev'){x=SEV.indexOf(x);y=SEV.indexOf(y)}return (x>y?1:x<y?-1:0)*sortDir});
+}
+function renderList(){
+ const rows=filtered();
+ $('shown').textContent=rows.length+' of '+D.issues.length+' issues';
+ $('tb').innerHTML=rows.map(i=>`<tr data-id="${esc(i.id)}" class="${i.id===selId?'sel':''}"><td>${esc(i.id)}</td><td><span class="pill ${i.sev}">${i.sev}</span></td><td>${esc(i.cat)}<div class="st">${esc(i.type)}</div></td><td>${esc(i.title)}</td><td class="st ${i.st}">${i.st}</td></tr>`).join('');
+ drawIssues();
+}
+['fFloor','fSev','fCat','fSt'].forEach(id=>$(id).onchange=()=>{if(id==='fFloor'&&$('fFloor').value){const k=D.floors.findIndex(f=>f.floor===$('fFloor').value);if(k>=0)showFloor(k)}renderList()});
+$('fTxt').oninput=renderList;
+document.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k;sortDir=sortK===k?-sortDir:1;sortK=k;renderList()});
+$('tb').onclick=e=>{const tr=e.target.closest('tr');if(tr)select(tr.dataset.id,true)};
+
+function select(id,zoom){
+ selId=id;const i=D.issues.find(x=>x.id===id);if(!i)return;
+ const k=D.floors.findIndex(f=>f.floor===i.floor);if(k>=0&&k!==curFloor)showFloor(k);
+ document.querySelectorAll('#tb tr').forEach(tr=>tr.classList.toggle('sel',tr.dataset.id===id));
+ const tr=document.querySelector(`#tb tr[data-id="${CSS.escape(id)}"]`);if(tr&&!zoom)tr.scrollIntoView({block:'nearest'});
+ $('detail').innerHTML=`<dl><dt>${esc(i.id)} · ${esc(i.floor||'')} · ${esc(i.level||'')}</dt><dd><span class="pill ${i.sev}">${i.sev}</span> <b>${esc(i.title)}</b></dd>
+ <dt>What was found</dt><dd>${esc(i.desc)}</dd>
+ ${i.cadV||i.rvtV?`<dt>CAD / Revit</dt><dd>${esc(i.cadV||'—')} &nbsp;→&nbsp; ${esc(i.rvtV||'—')}${i.delta!=null?` &nbsp;(Δ ${i.delta} mm)`:''}</dd>`:''}
+ ${i.ids&&i.ids.length?`<dt>Revit element ids</dt><dd>${esc(i.ids.join(', '))}</dd>`:''}
+ ${i.layer?`<dt>CAD layer / file</dt><dd>${esc(i.layer)} · ${esc(i.cadFile)}</dd>`:''}
+ ${i.x!=null?`<dt>Revit location (mm)</dt><dd>X ${i.x}, Y ${i.y}</dd>`:''}</dl>`;
+ if(zoom&&i.x!=null)zoomTo(i.x,i.y,Math.max(4000,i.r*8));
+ drawIssues();
+}
+
+// ---------- viewer ----------
+const svg=$('svg'),world=$('world');let vb=[0,0,1000,1000];
+function setVB(){svg.setAttribute('viewBox',vb.join(' '))}
+function fit(){const f=D.floors[curFloor];if(!f||!f.geo||!f.geo.box)return;const b=f.geo.box,pad=Math.max(b[2]-b[0],b[3]-b[1])*0.05+500;
+ const w=b[2]-b[0]+2*pad,h=b[3]-b[1]+2*pad,r=svg.clientWidth/Math.max(1,svg.clientHeight);let W=w,H=h;if(W/H<r)W=H*r;else H=W/r;
+ vb=[(b[0]+b[2])/2-W/2,-(b[1]+b[3])/2-H/2,W,H];setVB();}
+function zoomTo(x,y,size){const r=svg.clientWidth/Math.max(1,svg.clientHeight);vb=[x-size*r/2,-y-size/2,size*r,size];setVB();}
+$('fit').onclick=fit;
+function tabs(){$('tabs').innerHTML=D.floors.map((f,k)=>`<button class="tab ${k===curFloor?'on':''}" data-k="${k}">${esc(f.floor)} <span class="muted">(${D.issues.filter(i=>i.floor===f.floor&&i.st!=='Resolved').length})</span></button>`).join('');
+ document.querySelectorAll('#tabs .tab').forEach(b=>b.onclick=()=>{showFloor(+b.dataset.k);renderList()});}
+function pathD(a,close){let s='';for(let j=0;j<a.length;j+=2)s+=(j?'L':'M')+a[j]+' '+(-a[j+1]);return s+(close?'Z':'')}
+function showFloor(k){
+ curFloor=k;tabs();const f=D.floors[k];world.innerHTML='';
+ if(!f){return}
+ const g=f.geo||{};
+ let cad='';const c=g.cad||[];for(let j=0;j<c.length;j+=4)cad+=`M${c[j]} ${-c[j+1]}L${c[j+2]} ${-c[j+3]}`;
+ world.insertAdjacentHTML('beforeend',`<g id="gGrid" stroke="var(--grid)" stroke-dasharray="400 200" vector-effect="non-scaling-stroke" style="display:${$('lGrid').checked?'':'none'}">${(g.grids||[]).map(s=>`<path d="${pathD(s)}" vector-effect="non-scaling-stroke" stroke-width="1"/>`).join('')}</g>`);
+ world.insertAdjacentHTML('beforeend',`<g id="gRvt" style="display:${$('lRvt').checked?'':'none'}" fill="rgba(47,111,222,.22)" stroke="var(--rvt)">${(g.walls||[]).concat(g.cols||[]).map(w=>`<path d="${pathD(w,1)}" vector-effect="non-scaling-stroke" stroke-width="1"/>`).join('')}</g>`);
+ world.insertAdjacentHTML('beforeend',`<path id="gCad" d="${cad}" stroke="var(--cad)" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" style="display:${$('lCad').checked?'':'none'}"/>`);
+ world.insertAdjacentHTML('beforeend','<g id="gIss"></g>');
+ const a=f.align;$('fmeta').innerHTML=`<b>${esc(f.floor)}</b> → Revit level <b>${esc(f.level)}</b> · CAD: ${esc(f.cad)}${f.title?' ['+esc(f.title)+']':''}<br>`+
+  (a?`Alignment: ${esc(a.method)} · ${a.match}% of CAD walls on Revit walls${a.rms!=null?' · RMS '+a.rms+' mm':''} ${a.ok?'<span style="color:var(--ok)">✓ reliable</span>':'<span class="sev-Critical">⚠ uncertain</span>'}<br>`:'')+
+  esc(f.units||'')+(f.notes&&f.notes.length?'<br>'+f.notes.map(esc).join('<br>'):'');
+ const keys=Object.keys(f.cadCounts||{});
+ $('fcounts').innerHTML='<tr><th>Element</th><th>CAD</th><th>Revit</th></tr>'+keys.map(k=>`<tr><td>${k}</td><td>${f.cadCounts[k]}</td><td>${(f.rvtCounts||{})[k]??''}</td></tr>`).join('');
+ fit();drawIssues();
+}
+const COL={Critical:'var(--crit)',Major:'var(--major)',Minor:'var(--minor)',Info:'var(--info)'};
+function drawIssues(){
+ const g=$('gIss');if(!g)return;const f=D.floors[curFloor];if(!f)return;
+ const ids=new Set(filtered().map(i=>i.id));
+ g.style.display=$('lIss').checked?'':'none';
+ g.innerHTML=D.issues.filter(i=>i.floor===f.floor&&i.x!=null&&ids.has(i.id)&&i.st!=='Resolved').map(i=>{
+  const col=COL[i.sev],sel=i.id===selId;
+  return `<g data-id="${esc(i.id)}" style="cursor:pointer"><title>${esc(i.id+' — '+i.title)}</title>`+
+  (i.path?`<path d="${pathD(i.path)}" stroke="${col}" stroke-width="${sel?5:3}" fill="none" vector-effect="non-scaling-stroke"/>`:'')+
+  `<circle cx="${i.x}" cy="${-i.y}" r="${i.r}" fill="${col}" fill-opacity="${sel?.35:.14}" stroke="${col}" stroke-width="${sel?4:2}" vector-effect="non-scaling-stroke"/></g>`}).join('');
+}
+$('world').addEventListener('click',e=>{const t=e.target.closest('g[data-id]');if(t&&!dragged)select(t.dataset.id,false)});
+['lCad','lRvt','lGrid','lIss'].forEach(id=>$(id).onchange=()=>{const m={lCad:'gCad',lRvt:'gRvt',lGrid:'gGrid',lIss:'gIss'};const el=$(m[id]);if(el)el.style.display=$(id).checked?'':'none'});
+// pan & zoom
+let drag=null,dragged=false;
+svg.addEventListener('wheel',e=>{e.preventDefault();const r=svg.getBoundingClientRect();const mx=vb[0]+(e.clientX-r.left)/r.width*vb[2],my=vb[1]+(e.clientY-r.top)/r.height*vb[3];
+ const s=e.deltaY>0?1.2:1/1.2;vb=[mx-(mx-vb[0])*s,my-(my-vb[1])*s,vb[2]*s,vb[3]*s];setVB()},{passive:false});
+svg.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,vb:vb.slice(),id:e.pointerId};dragged=false});
+svg.addEventListener('pointermove',e=>{if(!drag)return;const r=svg.getBoundingClientRect();const dx=(e.clientX-drag.x)/r.width*vb[2],dy=(e.clientY-drag.y)/r.height*vb[3];
+ if(!dragged&&Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>3){dragged=true;try{svg.setPointerCapture(drag.id)}catch(_){}}vb=[drag.vb[0]-dx,drag.vb[1]-dy,vb[2],vb[3]];setVB()});
+svg.addEventListener('pointerup',()=>{drag=null;setTimeout(()=>dragged=false,0)});
+window.addEventListener('resize',fit);
+if(D.floors.length){showFloor(0)}else{$('viewer').innerHTML='<p class="muted" style="padding:16px">No floor was compared. See the run log below.</p>'}
+renderList();
+</script></body></html>

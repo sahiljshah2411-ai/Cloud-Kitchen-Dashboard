@@ -1,0 +1,456 @@
+{
+  "Tool": "Revit CAD Technical QC",
+  "ToolVersion": "1.0.0",
+  "ProjectName": "Test Tower",
+  "RevitFile": "test.rvt",
+  "CadFolder": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6",
+  "RunUtc": "2026-09-26T03:23:39.5345447Z",
+  "DurationSeconds": 0.5,
+  "Floors": [
+    {
+      "Floor": "2nd Floor",
+      "FloorCode": "L02",
+      "LevelName": "Second Floor",
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "RegionTitle": "SECOND FLOOR PLAN",
+      "UnitsNote": "Units from drawing header (INSUNITS=4), confirmed by wall spacing analysis.",
+      "CadUnitToMm": 1.0,
+      "Alignment": {
+        "Transform": {
+          "Rotation": 0.5235073034473597,
+          "Scale": 1.0,
+          "Tx": 100000.02252092464,
+          "Ty": -49999.52811455766
+        },
+        "Method": "Grid intersections",
+        "RmsMm": 4.326569328107302,
+        "InlierRatio": 0.9108910891089109,
+        "Samples": 202,
+        "Reliable": true,
+        "Log": [
+          "Grid alignment from 4 matching grid names, 4 intersections: rot=30° scale=1 t=(100000, -50000)"
+        ]
+      },
+      "CadCounts": {
+        "Walls": 9,
+        "Doors": 1,
+        "Windows": 1,
+        "Columns": 2,
+        "Rooms": 2,
+        "Grids": 4,
+        "Dimensions": 1
+      },
+      "RevitCounts": {
+        "Walls": 7,
+        "Doors": 1,
+        "Windows": 0,
+        "Columns": 2,
+        "Rooms": 2,
+        "Grids": 4
+      },
+      "Notes": [],
+      "IssueCount": 9
+    }
+  ],
+  "Issues": [
+    {
+      "Id": "L02-WAL-002",
+      "Key": "Second Floor|Wall|Missing in Revit|517|-205",
+      "Floor": "2nd Floor",
+      "LevelName": "Second Floor",
+      "Category": "Wall",
+      "IssueType": "Missing in Revit",
+      "Severity": "Critical",
+      "Status": "New",
+      "Title": "Wall 115 mm thick, 4713 mm long not modelled in Revit",
+      "Description": "The CAD wall on layer 'A-WALL' (115 mm thick, 4713 mm long) has no Revit wall within 400 mm.",
+      "CadValue": "115 mm × 4713 mm",
+      "RevitValue": "—",
+      "Delta": 4712.5,
+      "RevitLocation": {
+        "X": 103421.3327229887,
+        "Y": -41096.81360920861
+      },
+      "CadLocation": {
+        "X": 7413.75,
+        "Y": 5999.999999999985
+      },
+      "RevitPath": [
+        {
+          "X": 101380.65260823084,
+          "Y": -42274.751948737394
+        },
+        {
+          "X": 105462.01283774657,
+          "Y": -39918.87526967983
+        }
+      ],
+      "CadPath": [
+        {
+          "X": 5057.500000000015,
+          "Y": 5999.999999999985
+        },
+        {
+          "X": 9770.0,
+          "Y": 5999.999999999985
+        }
+      ],
+      "MarkerRadius": 1500.0,
+      "RevitElementIds": [],
+      "CadHandles": [
+        "111",
+        "112"
+      ],
+      "CadLayer": "A-WALL",
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T03:23:40.0508221Z"
+    },
+    {
+      "Id": "L02-COL-001",
+      "Key": "Second Floor|Column|Position offset|528|-222",
+      "Floor": "2nd Floor",
+      "LevelName": "Second Floor",
+      "Category": "Column",
+      "IssueType": "Position offset",
+      "Severity": "Major",
+      "Status": "New",
+      "Title": "Column shifted 60 mm",
+      "Description": "Column centre differs by 59.6 mm between CAD and Revit.",
+      "Delta": 59.6,
+      "RevitLocation": {
+        "X": 105547.15205261036,
+        "Y": -44487.94919243112
+      },
+      "CadLocation": {
+        "X": 7559.561614008999,
+        "Y": 2000.2940934099752
+      },
+      "RevitPath": [
+        {
+          "X": 105495.7144812966,
+          "Y": -44517.979986820115
+        },
+        {
+          "X": 105547.15205261036,
+          "Y": -44487.94919243112
+        }
+      ],
+      "CadPath": [
+        {
+          "X": 7500.0,
+          "Y": 2000.0
+        },
+        {
+          "X": 7559.561614008999,
+          "Y": 2000.2940934099752
+        }
+      ],
+      "MarkerRadius": 400.0,
+      "RevitElementIds": [
+        "3002"
+      ],
+      "CadHandles": [
+        "11F"
+      ],
+      "CadLayer": "S-COLS",
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T03:23:40.0643174Z"
+    },
+    {
+      "Id": "L02-DR-001",
+      "Key": "Second Floor|Door|Width mismatch|518|-231",
+      "Floor": "2nd Floor",
+      "LevelName": "Second Floor",
+      "Category": "Door",
+      "IssueType": "Width mismatch",
+      "Severity": "Major",
+      "Status": "New",
+      "Title": "Door width: CAD 900 mm vs Revit 1000 mm",
+      "Description": "Door D1: CAD width 900 mm (from swing arc radius), Revit 'Single 1000' width 1000 mm.",
+      "CadValue": "900 mm",
+      "RevitValue": "1000 mm — Single 1000",
+      "Delta": 100.0,
+      "RevitLocation": {
+        "X": 103605.1270189222,
+        "Y": -46244.263164512566
+      },
+      "CadLocation": {
+        "X": 4999.611934401924,
+        "Y": 1450.0599270048697
+      },
+      "MarkerRadius": 630.0,
+      "RevitElementIds": [
+        "2001"
+      ],
+      "CadHandles": [
+        "115"
+      ],
+      "CadLayer": "A-DOOR",
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T03:23:40.0600873Z"
+    },
+    {
+      "Id": "L02-WAL-001",
+      "Key": "Second Floor|Wall|Thickness mismatch|501|-226",
+      "Floor": "2nd Floor",
+      "LevelName": "Second Floor",
+      "Category": "Wall",
+      "IssueType": "Thickness mismatch",
+      "Severity": "Major",
+      "Status": "New",
+      "Title": "Wall thickness: CAD 230 mm vs Revit 200 mm",
+      "Description": "CAD wall (230 mm drawn, note \"230 THK. BRICK WALL\") is modelled with Revit type 'Brick 230' (200 mm) over 4713 mm.",
+      "CadValue": "230 mm drawn, note \"230 THK. BRICK WALL\"",
+      "RevitValue": "200 mm — Brick 230",
+      "Delta": -30.0,
+      "RevitLocation": {
+        "X": 100240.21587420949,
+        "Y": -45242.32345052041
+      },
+      "CadLocation": {
+        "X": 2586.2500000000073,
+        "Y": 3999.9999999999854
+      },
+      "RevitPath": [
+        {
+          "X": 98199.53575945162,
+          "Y": -46420.26179004919
+        },
+        {
+          "X": 102280.89598896736,
+          "Y": -44064.38511099163
+        }
+      ],
+      "CadPath": [
+        {
+          "X": 230.00000000001455,
+          "Y": 3999.9999999999854
+        },
+        {
+          "X": 4942.5,
+          "Y": 3999.9999999999854
+        }
+      ],
+      "MarkerRadius": 500.0,
+      "RevitElementIds": [
+        "1005"
+      ],
+      "CadHandles": [
+        "10E",
+        "10F"
+      ],
+      "CadLayer": "A-WALL",
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T03:23:40.0491116Z"
+    },
+    {
+      "Id": "L02-WAL-003",
+      "Key": "Second Floor|Wall|Extra in Revit (not in CAD)|529|-225",
+      "Floor": "2nd Floor",
+      "LevelName": "Second Floor",
+      "Category": "Wall",
+      "IssueType": "Extra in Revit (not in CAD)",
+      "Severity": "Major",
+      "Status": "New",
+      "Title": "Revit wall 'Brick 115' (2885 mm) not in CAD",
+      "Description": "Revit wall 1006 of type 'Brick 115' has no matching wall in the CAD plan.",
+      "CadValue": "—",
+      "RevitValue": "Brick 115, 2885 mm",
+      "Delta": 2885.0,
+      "RevitLocation": {
+        "X": 105716.44052838329,
+        "Y": -44901.16543360574
+      },
+      "CadLocation": {
+        "X": 7499.602090686763,
+        "Y": 1557.7886069321685
+      },
+      "RevitPath": [
+        {
+          "X": 106437.69052838329,
+          "Y": -46150.40707856479
+        },
+        {
+          "X": 104995.19052838329,
+          "Y": -43651.92378864669
+        }
+      ],
+      "CadPath": [
+        {
+          "X": 7499.734039264309,
+          "Y": 115.28861296697869
+        },
+        {
+          "X": 7499.470142109218,
+          "Y": 3000.2886008973583
+        }
+      ],
+      "MarkerRadius": 1442.5,
+      "RevitElementIds": [
+        "1006"
+      ],
+      "CadHandles": [],
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T03:23:40.0516153Z"
+    },
+    {
+      "Id": "L02-WIN-001",
+      "Key": "Second Floor|Window|Missing in Revit|533|-231",
+      "Floor": "2nd Floor",
+      "LevelName": "Second Floor",
+      "Category": "Window",
+      "IssueType": "Missing in Revit",
+      "Severity": "Major",
+      "Status": "New",
+      "Title": "Window W1 (1200 mm) missing in Revit",
+      "Description": "CAD window (block 'WIN_1200', layer 'A-GLAZ', width from block extents) has no Revit window within 600 mm.",
+      "CadValue": "W1 1200 mm",
+      "RevitValue": "—",
+      "Delta": 1200.0,
+      "RevitLocation": {
+        "X": 106524.6722665433,
+        "Y": -46100.532000556224
+      },
+      "CadLocation": {
+        "X": 7600.0,
+        "Y": 115.0
+      },
+      "MarkerRadius": 840.0,
+      "RevitElementIds": [],
+      "CadHandles": [
+        "11C"
+      ],
+      "CadLayer": "A-GLAZ",
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T03:23:40.0606891Z"
+    },
+    {
+      "Id": "L02-DIM-001",
+      "Key": "Second Floor|Dimension|Dimension mismatch|494|-230",
+      "Floor": "2nd Floor",
+      "LevelName": "Second Floor",
+      "Category": "Dimension",
+      "IssueType": "Dimension mismatch",
+      "Severity": "Minor",
+      "Status": "New",
+      "Title": "Dimension 230 mm in CAD, 200 mm in Revit",
+      "Description": "CAD dimension between wall face and wall face reads 230 mm; the same references in Revit are 200 mm apart.",
+      "CadValue": "230 mm",
+      "RevitValue": "200 mm",
+      "Delta": -30.0,
+      "RevitLocation": {
+        "X": 98866.41053435393,
+        "Y": -46035.32278890875
+      },
+      "CadLocation": {
+        "X": 1000.0000000000146,
+        "Y": 3999.9999999999854
+      },
+      "RevitPath": [
+        {
+          "X": 98923.90142413464,
+          "Y": -46134.92096957598
+        },
+        {
+          "X": 98808.91964457321,
+          "Y": -45935.72460824152
+        }
+      ],
+      "CadPath": [
+        {
+          "X": 1000.0000000000146,
+          "Y": 3884.9999999999854
+        },
+        {
+          "X": 1000.0,
+          "Y": 4114.999999999985
+        }
+      ],
+      "MarkerRadius": 450.0,
+      "RevitElementIds": [
+        "1005"
+      ],
+      "CadHandles": [
+        "12F"
+      ],
+      "CadLayer": "A-ANNO-DIMS",
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T03:23:40.077193Z"
+    },
+    {
+      "Id": "L02-MDL-001",
+      "Key": "Second Floor|Revit Model|Type name does not match width|501|-226",
+      "Floor": "2nd Floor",
+      "LevelName": "Second Floor",
+      "Category": "Revit Model",
+      "IssueType": "Type name does not match width",
+      "Severity": "Minor",
+      "Status": "New",
+      "Title": "Type 'Brick 230' is actually 200 mm wide",
+      "Description": "The wall type name suggests 230 mm but the type width is 200 mm.",
+      "RevitValue": "Brick 230: 200 mm",
+      "Delta": -30.0,
+      "RevitLocation": {
+        "X": 100214.8599701787,
+        "Y": -45257.148384862245
+      },
+      "CadLocation": {
+        "X": 2556.8786906357345,
+        "Y": 3999.836495608397
+      },
+      "MarkerRadius": 400.0,
+      "RevitElementIds": [
+        "1005"
+      ],
+      "CadHandles": [],
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T03:23:40.052088Z"
+    },
+    {
+      "Id": "L02-RM-001",
+      "Key": "Second Floor|Room|Name mismatch|498|-234",
+      "Floor": "2nd Floor",
+      "LevelName": "Second Floor",
+      "Category": "Room",
+      "IssueType": "Name mismatch",
+      "Severity": "Minor",
+      "Status": "New",
+      "Title": "Room name: CAD 'KITCHEN' vs Revit 'Dining'",
+      "Description": "Revit room 202 is named 'Dining'.",
+      "CadValue": "KITCHEN",
+      "RevitValue": "202 Dining",
+      "RevitLocation": {
+        "X": 99539.54554230314,
+        "Y": -46801.409769005135
+      },
+      "CadLocation": {
+        "X": 1200.0000000000073,
+        "Y": 3000.0
+      },
+      "MarkerRadius": 900.0,
+      "RevitElementIds": [
+        "5002"
+      ],
+      "CadHandles": [
+        "12E"
+      ],
+      "CadLayer": "A-AREA-IDEN",
+      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T03:23:40.0734583Z"
+    }
+  ],
+  "Log": [
+    "DWG converter: none",
+    "2ND FLOOR PLAN.dxf: 35 curves, 11 texts, 2 block refs, 1 dims. Units from drawing header (INSUNITS=4), confirmed by wall spacing analysis.",
+    "Plan found: 2ND FLOOR PLAN.dxf [SECOND FLOOR PLAN] floors=2"
+  ],
+  "OutputFiles": [
+    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/QC_Report.html",
+    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/QC_Issues.csv",
+    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/QC_Issues.xlsx",
+    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/CAD_Markup/2ND FLOOR PLAN_QC_markup.dxf",
+    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/CAD_Markup/2ND FLOOR PLAN_QC_markup.scr",
+    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/qc_report.json"
+  ],
+  "OpenCount": 9
+}
