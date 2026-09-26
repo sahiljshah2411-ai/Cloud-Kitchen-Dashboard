@@ -11,7 +11,7 @@
    6. signs the DLLs
    7. installs into %APPDATA%\Autodesk\Revit\Addins\<version>\RevitCadQC
    8. verifies every copied file by SHA256 hash + signature
-   9. checks for a DWG converter (ODA File Converter / AutoCAD)
+   9. reports the optional DWG fallback converter (DWG is read built-in)
 
  Options:  -Versions 2022,2025   build only these
            -SkipTests            skip the unit tests
@@ -206,17 +206,13 @@ if (-not (Test-Path $defaults) -and (Test-Path "config\qc-settings.sample.json")
 }
 
 # ---------- DWG converter ----------
-Step "Checking for a DWG converter"
+Step "DWG reading"
 $oda = Get-ChildItem "$env:ProgramFiles\ODA" -Recurse -Filter "ODAFileConverter.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
 $acad = Get-ChildItem "$env:ProgramFiles\Autodesk" -Directory -Filter "AutoCAD*" -ErrorAction SilentlyContinue |
     ForEach-Object { Join-Path $_.FullName "accoreconsole.exe" } | Where-Object { Test-Path $_ } | Select-Object -First 1
 if ($oda) { Ok "ODA File Converter: $($oda.FullName)" }
 elseif ($acad) { Ok "AutoCAD Core Console: $acad" }
-else {
-    Write-Host "  No DWG converter found. DWG files cannot be read until you install the free ODA File Converter:" -ForegroundColor Yellow
-    Write-Host "     https://www.opendesign.com/guestfiles/oda_file_converter" -ForegroundColor Yellow
-    Write-Host "  (DXF files work without it.)" -ForegroundColor Yellow
-}
+else { Ok "DWG files are read by the built-in reader (ACadSharp). ODA File Converter is an optional fallback." }
 
 Write-Host ""
 Write-Host "====================================================================" -ForegroundColor Green

@@ -61,5 +61,6 @@
 
   <ItemGroup>
     <None Include="CadQC.addin" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\config\CadLayerDictionary.txt" Link="CadLayerDictionary.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

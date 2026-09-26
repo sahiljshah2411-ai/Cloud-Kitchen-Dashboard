@@ -14,7 +14,7 @@ Examples of what it catches:
 * "TOILET" and "BATH" are separate rooms in CAD but one room in Revit, so a wall is missing.
 * Drafting errors inside the CAD itself: overridden dimension text, thickness notes that do not match the drawn wall.
 
-You point it at a folder. It finds every DWG/DXF, converts DWG to DXF by itself, works out which floor each plan is, aligns each plan to the model, and runs the checks. You do not export DXF by hand, and you do not need to set up the floor mapping.
+You point it at a folder. It finds every DWG/DXF, reads DWG directly, works out which floor each plan is, aligns each plan to the model, and runs the checks. You do not export DXF by hand, and you do not need to set up the floor mapping.
 
 # What you get after a run
 
@@ -23,7 +23,7 @@ You point it at a folder. It finds every DWG/DXF, converts DWG to DXF by itself,
 | Revit | One floor plan per checked floor named `QC - 2nd Floor - <date>`. The CAD is linked in at the right place (halftone), and every issue has a cloud, an ID label and, for missing walls, a line where the wall should be. Elements with issues are shown red (critical), orange (major) or yellow (minor). There is also a `QC 3D` view. |
 | Revit | Issue Browser (modeless). Double-click an issue to open its QC plan, zoom to it and select the elements. Mark false positives as Accepted so they stay closed on the next run. |
 | CAD | `CAD_Markup\<file>_QC_markup.scr`: open the original DWG in AutoCAD, type `SCRIPT`, pick this file. Clouds, labels and the missing or extra geometry are drawn on layers `QC_CRITICAL`, `QC_MAJOR`, `QC_MINOR`, `QC_INFO`, and the CAD entities involved are pre-selected. |
-| CAD | `CAD_Markup\<file>_QC_markup.dxf` (and `.dwg` when the ODA converter is installed): the same markup plus the Revit walls, columns and openings drawn over the CAD (layer `QC_REVIT_*`). XREF or INSERT it at 0,0. |
+| CAD | `CAD_Markup\<file>_QC_markup.dxf` and `.dwg`: the same markup plus the Revit walls, columns and openings drawn over the CAD (layer `QC_REVIT_*`). XREF or INSERT it at 0,0. |
 | Report | `QC_Report.html`: summary, a zoomable plan per floor with the CAD, the Revit model and the issues on top, and a filterable issue register. Works offline and can be emailed. |
 | Report | `QC_Issues.xlsx` and `QC_Issues.csv`: the issue register for Excel. |
 | Report | `qc_report.json` plus `history\`: used to mark issues New, Open, Accepted or Resolved between runs. |
@@ -34,7 +34,7 @@ A sample of every output, made from the test drawing, is in [`docs/sample-output
 
 Plain-text guide with every step: [`README.txt`](README.txt).
 
-1. Install the free **ODA File Converter** (https://www.opendesign.com/guestfiles/oda_file_converter). It is what turns DWG into DXF automatically. If AutoCAD is installed, its `accoreconsole.exe` is used instead. DXF files work without either.
+1. Nothing to install for DWG: files are read directly with ACadSharp 3.6.35 (pinned to the same version as AashirTools so both add-ins can run together). The free ODA File Converter or AutoCAD's `accoreconsole.exe` are only used as a fallback if a DWG cannot be read.
 2. Close Revit and double-click **`RUN_1_BUILD_AND_INSTALL.bat`**. It installs a user-local .NET 8 SDK if needed (no admin), runs the tests, builds for every Revit version on the PC, signs the DLLs with a self-signed certificate, installs, and verifies the copy by hash and signature.
 3. Start Revit. The **CAD QC** tab appears.
 
@@ -57,6 +57,12 @@ Supported: Revit 2022, 2023, 2024 (.NET Framework 4.8), 2025 and 2026 (.NET 8). 
 5. Fix the model and run again. Fixed issues show as Resolved, and new ones as New.
 
 **Clear QC Views** removes every QC view together with its clouds and linked CAD. **Settings** opens the project's settings file. **Export Snapshot** saves the model data so QC can run from the command line.
+
+# Which CAD layer is what
+
+1. **Consultant profile.** The first time a consultant's drawings are seen, a review grid lists every layer with the tool's guess. Correct it once and save; it is stored in `%APPDATA%\RevitCadQC\CadProfiles` and used automatically for every drawing that shares at least 60% of its layers. The team package carries the profiles.
+2. **`CadLayerDictionary.txt`.** Notepad-editable token rules, first match wins (see [`config/CadLayerDictionary.txt`](config/CadLayerDictionary.txt)). Your copy lives in `%APPDATA%\RevitCadQC`.
+3. Unknown layers are skipped and listed in the run log, never guessed. If no layer is classed as wall, wall layers are detected from the linework.
 
 # How floors are matched
 
@@ -141,7 +147,7 @@ This writes the same reports and CAD markups. The exit code is 1 when there are 
 RevitCadQC/
   src/CadQC.Core/        engine, no Revit dependency (netstandard2.0)
     Dxf/                 DXF reader (blocks, OCS, hatches, dimensions, MTEXT…)
-    Conversion/          automatic DWG → DXF (ODA / AutoCAD / LibreDWG), cached
+    Conversion/          DWG reading with ACadSharp (ODA / AutoCAD fallback), cached
     Extraction/          walls, openings, columns, grids, rooms, dimensions, units, plan splitting, text parsing
     Alignment/           CAD → Revit auto alignment (identity, grids, ICP)
     Compare/             the checks

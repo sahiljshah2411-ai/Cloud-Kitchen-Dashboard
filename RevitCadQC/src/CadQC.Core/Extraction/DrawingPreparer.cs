@@ -76,7 +76,7 @@ namespace CadQC.Core.Extraction
 
         private static List<double> SampleParallelSpacings(CadDrawing dwg, QcSettings s)
         {
-            var segs = dwg.Curves.Where(c => s.Matches(s.WallLayers, c.Layer) && !s.IsExcluded(c.Layer)).SelectMany(c => c.Segments()).ToList();
+            var segs = dwg.Curves.Where(c => s.IsLayer(LayerCategory.Wall, c.Layer)).SelectMany(c => c.Segments()).ToList();
             if (segs.Count < 20) segs = dwg.Curves.Where(c => !s.IsExcluded(c.Layer)).SelectMany(c => c.Segments()).ToList();
             segs = segs.Where(x => x.Length > 1e-6).OrderByDescending(x => x.Length).Take(2500).ToList();
             var res = new List<double>();
@@ -148,7 +148,7 @@ namespace CadQC.Core.Extraction
         /// <summary>Connected islands of wall linework on a coarse occupancy raster.</summary>
         private static List<Box2> FindIslands(CadDrawing dwg, QcSettings s)
         {
-            var segs = dwg.Curves.Where(c => s.Matches(s.WallLayers, c.Layer) && !s.IsExcluded(c.Layer)).SelectMany(c => c.Segments()).ToList();
+            var segs = dwg.Curves.Where(c => s.IsLayer(LayerCategory.Wall, c.Layer)).SelectMany(c => c.Segments()).ToList();
             if (segs.Count < 10) segs = dwg.Curves.Where(c => !s.IsExcluded(c.Layer)).SelectMany(c => c.Segments()).ToList();
             if (segs.Count == 0) return new List<Box2>();
             const double cell = 1500;

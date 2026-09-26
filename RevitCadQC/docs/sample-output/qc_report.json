@@ -3,15 +3,15 @@
   "ToolVersion": "1.0.0",
   "ProjectName": "Test Tower",
   "RevitFile": "test.rvt",
-  "CadFolder": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6",
-  "RunUtc": "2026-09-26T03:23:39.5345447Z",
-  "DurationSeconds": 0.5,
+  "CadFolder": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348",
+  "RunUtc": "2026-09-26T05:08:28.8909942Z",
+  "DurationSeconds": 0.7,
   "Floors": [
     {
       "Floor": "2nd Floor",
       "FloorCode": "L02",
       "LevelName": "Second Floor",
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
       "RegionTitle": "SECOND FLOOR PLAN",
       "UnitsNote": "Units from drawing header (INSUNITS=4), confirmed by wall spacing analysis.",
       "CadUnitToMm": 1.0,
@@ -102,8 +102,8 @@
         "112"
       ],
       "CadLayer": "A-WALL",
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
-      "FirstSeenUtc": "2026-09-26T03:23:40.0508221Z"
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T05:08:29.5166385Z"
     },
     {
       "Id": "L02-COL-001",
@@ -153,8 +153,8 @@
         "11F"
       ],
       "CadLayer": "S-COLS",
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
-      "FirstSeenUtc": "2026-09-26T03:23:40.0643174Z"
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T05:08:29.5313102Z"
     },
     {
       "Id": "L02-DR-001",
@@ -186,8 +186,8 @@
         "115"
       ],
       "CadLayer": "A-DOOR",
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
-      "FirstSeenUtc": "2026-09-26T03:23:40.0600873Z"
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T05:08:29.5269063Z"
     },
     {
       "Id": "L02-WAL-001",
@@ -240,8 +240,8 @@
         "10F"
       ],
       "CadLayer": "A-WALL",
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
-      "FirstSeenUtc": "2026-09-26T03:23:40.0491116Z"
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T05:08:29.5144389Z"
     },
     {
       "Id": "L02-WAL-003",
@@ -290,8 +290,8 @@
         "1006"
       ],
       "CadHandles": [],
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
-      "FirstSeenUtc": "2026-09-26T03:23:40.0516153Z"
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T05:08:29.5176524Z"
     },
     {
       "Id": "L02-WIN-001",
@@ -321,8 +321,8 @@
         "11C"
       ],
       "CadLayer": "A-GLAZ",
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
-      "FirstSeenUtc": "2026-09-26T03:23:40.0606891Z"
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T05:08:29.5275668Z"
     },
     {
       "Id": "L02-DIM-001",
@@ -374,8 +374,8 @@
         "12F"
       ],
       "CadLayer": "A-ANNO-DIMS",
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
-      "FirstSeenUtc": "2026-09-26T03:23:40.077193Z"
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T05:08:29.5455832Z"
     },
     {
       "Id": "L02-MDL-001",
@@ -403,8 +403,8 @@
         "1005"
       ],
       "CadHandles": [],
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
-      "FirstSeenUtc": "2026-09-26T03:23:40.052088Z"
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T05:08:29.5182431Z"
     },
     {
       "Id": "L02-RM-001",
@@ -435,22 +435,25 @@
         "12E"
       ],
       "CadLayer": "A-AREA-IDEN",
-      "CadFile": "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/2ND FLOOR PLAN.dxf",
-      "FirstSeenUtc": "2026-09-26T03:23:40.0734583Z"
+      "CadFile": "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/2ND FLOOR PLAN.dxf",
+      "FirstSeenUtc": "2026-09-26T05:08:29.5414458Z"
     }
   ],
   "Log": [
-    "DWG converter: none",
+    "DWG converter: ACadSharp (built in)",
+    "2ND FLOOR PLAN.dxf: no saved consultant profile - layers classified by built-in rules",
+    "  layers: Wall: A-WALL | Door: A-DOOR, A-DOOR-IDEN | Window: A-GLAZ, A-GLAZ-IDEN | Column: S-COLS | Grid: S-GRID | Room: A-ANNO-TEXT, A-AREA-IDEN, A-ANNO-TTLB | Dimension: A-ANNO-DIMS",
     "2ND FLOOR PLAN.dxf: 35 curves, 11 texts, 2 block refs, 1 dims. Units from drawing header (INSUNITS=4), confirmed by wall spacing analysis.",
     "Plan found: 2ND FLOOR PLAN.dxf [SECOND FLOOR PLAN] floors=2"
   ],
   "OutputFiles": [
-    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/QC_Report.html",
-    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/QC_Issues.csv",
-    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/QC_Issues.xlsx",
-    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/CAD_Markup/2ND FLOOR PLAN_QC_markup.dxf",
-    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/CAD_Markup/2ND FLOOR PLAN_QC_markup.scr",
-    "/tmp/cadqc_test_f36f12f11ff549d595f4afdc0e473ee6/out/qc_report.json"
+    "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/out/QC_Report.html",
+    "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/out/QC_Issues.csv",
+    "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/out/QC_Issues.xlsx",
+    "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/out/CAD_Markup/2ND FLOOR PLAN_QC_markup.dxf",
+    "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/out/CAD_Markup/2ND FLOOR PLAN_QC_markup.dwg",
+    "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/out/CAD_Markup/2ND FLOOR PLAN_QC_markup.scr",
+    "/tmp/cadqc_test_30b4df8eb6f1447fa9645dbda136e348/out/qc_report.json"
   ],
   "OpenCount": 9
 }

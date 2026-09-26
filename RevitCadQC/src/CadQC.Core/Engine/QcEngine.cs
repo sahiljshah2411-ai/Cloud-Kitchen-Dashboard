@@ -73,6 +73,18 @@ namespace CadQC.Core.Engine
                     var dxf = converter.EnsureDxf(f);
                     var dwg = DxfReader.Load(dxf, _s.SkipFrozenAndOffLayers);
                     dwg.SourcePath = f;
+                    // consultant profile first: it decides which layers are walls, also for unit detection
+                    var used = UsedLayers(dwg).ToList();
+                    double cov;
+                    var prof = _s.SessionProfile != null && (cov = _s.SessionProfile.Coverage(used)) >= CadProfileStore.MatchThreshold
+                        ? _s.SessionProfile
+                        : CadProfileStore.BestMatch(used, out cov);
+                    _profiles[f] = prof;
+                    _s.Layers.UseProfile(prof);
+                    report.Log.Add(prof != null
+                        ? $"{Path.GetFileName(f)}: consultant layer profile '{prof.Name}' ({cov:P0} of its layers known)"
+                        : $"{Path.GetFileName(f)}: no saved consultant profile - layers classified by {_s.Layers.Source}");
+                    report.Log.Add("  layers: " + DescribeLayers(dwg));
                     // remember the original unit factor so markup can be written back in drawing units
                     string units = DrawingPreparer.NormaliseUnits(dwg, _s, out double factor);
                     drawings.Add((dwg, units, f));
@@ -113,6 +125,7 @@ namespace CadQC.Core.Engine
                 _ct.ThrowIfCancellationRequested();
                 var job = jobs[j];
                 Report(35 + 55 * j / Math.Max(1, jobs.Count), $"Checking {job.Label} ({job.Level.Name})…");
+                _s.Layers.UseProfile(_profiles.TryGetValue(job.Region.File, out var jp) ? jp : null);
                 string ck = job.Region.File + "|" + job.Region.Title;
                 if (!cache.TryGetValue(ck, out var cad))
                 {
@@ -135,6 +148,26 @@ namespace CadQC.Core.Engine
             WriteOutputs(report, converter);
             Report(100, $"Done: {report.OpenCount} open issues ({report.Count(Severity.Critical)} critical).");
             return report;
+        }
+
+        private readonly Dictionary<string, CadLayerProfile> _profiles = new Dictionary<string, CadLayerProfile>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Layers that actually carry geometry or text (empty layers are not part of a consultant's convention).</summary>
+        public static IEnumerable<string> UsedLayers(CadDrawing d) =>
+            d.Curves.Select(c => c.Layer).Concat(d.Texts.Select(t => t.Layer)).Concat(d.Inserts.Select(i => i.Layer))
+             .Concat(d.Dimensions.Select(x => x.Layer)).Where(l => !string.IsNullOrEmpty(l)).Distinct(StringComparer.OrdinalIgnoreCase);
+
+        private string DescribeLayers(CadDrawing d)
+        {
+            var parts = new List<string>();
+            foreach (var g in UsedLayers(d).GroupBy(l => _s.Layers.Classify(l)).OrderBy(g => g.Key))
+            {
+                if (g.Key == LayerCategory.Unknown || g.Key == LayerCategory.Ignore)
+                    parts.Add($"{g.Key}: {g.Count()} layer(s)");
+                else
+                    parts.Add($"{g.Key}: {string.Join(", ", g.Take(8))}{(g.Count() > 8 ? $" (+{g.Count() - 8})" : "")}");
+            }
+            return string.Join(" | ", parts);
         }
 
         private readonly Dictionary<string, double> _unitFactor = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
@@ -352,8 +385,8 @@ namespace CadQC.Core.Engine
             foreach (var c in job.Drawing.Curves)
             {
                 if (_s.IsExcluded(c.Layer)) continue;
-                bool relevant = _s.Matches(_s.WallLayers, c.Layer) || _s.Matches(_s.DoorLayers, c.Layer) || _s.Matches(_s.WindowLayers, c.Layer)
-                                || _s.Matches(_s.ColumnLayers, c.Layer) || cad.WallLayersUsed.Contains(c.Layer);
+                bool relevant = _s.IsLayer(LayerCategory.Wall, c.Layer) || _s.IsLayer(LayerCategory.Door, c.Layer) || _s.IsLayer(LayerCategory.Window, c.Layer)
+                                || _s.IsLayer(LayerCategory.Column, c.Layer) || cad.WallLayersUsed.Contains(c.Layer);
                 if (!relevant) continue;
                 foreach (var sgm in c.Segments())
                 {

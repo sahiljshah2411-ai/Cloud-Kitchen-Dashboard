@@ -76,8 +76,7 @@ namespace CadQC.Core.Extraction
             return data;
         }
 
-        private bool IsWallLayer(string layer) => _s.Matches(_s.WallLayers, layer) && !_s.IsExcluded(layer)
-                                                  && !_s.Matches(_s.DoorLayers, layer) && !_s.Matches(_s.WindowLayers, layer);
+        private bool IsWallLayer(string layer) => _s.IsLayer(LayerCategory.Wall, layer);
 
         /// <summary>Wall geometry that lives inside a door/window block is not a wall.</summary>
         private bool IsNotOpeningBlock(CadDrawing dwg, CadEntity e)
@@ -127,8 +126,8 @@ namespace CadQC.Core.Extraction
             {
                 var ins = dwg.Inserts[i];
                 if (_s.IsExcluded(ins.Layer)) continue;
-                bool doorish = _s.Matches(_s.DoorBlockNames, ins.Name) || _s.Matches(_s.DoorLayers, ins.Layer);
-                bool windowish = _s.Matches(_s.WindowBlockNames, ins.Name) || _s.Matches(_s.WindowLayers, ins.Layer);
+                bool doorish = _s.Matches(_s.DoorBlockNames, ins.Name) || _s.IsLayer(LayerCategory.Door, ins.Layer);
+                bool windowish = _s.Matches(_s.WindowBlockNames, ins.Name) || _s.IsLayer(LayerCategory.Window, ins.Layer);
                 if (!doorish && !windowish) continue;
                 if (AncestorClaimed(dwg, ins, claimed)) continue; // nested leaf inside a door block
                 if (ins.LocalBounds.IsEmpty) continue;
@@ -196,7 +195,7 @@ namespace CadQC.Core.Extraction
             }
 
             // loose door swings drawn without blocks
-            var doorArcs = dwg.Arcs.Where(a => !a.IsCircle && _s.Matches(_s.DoorLayers, a.Layer) && !_s.IsExcluded(a.Layer)
+            var doorArcs = dwg.Arcs.Where(a => !a.IsCircle && _s.IsLayer(LayerCategory.Door, a.Layer)
                                               && a.Radius >= 400 && a.Radius <= 2000 && a.Sweep > 60 * GeoMath.Deg && a.Sweep < 120 * GeoMath.Deg
                                               && inRegion(a.Center) && !InsideClaimedInsert(dwg, a, claimed)).ToList();
             var leafs = new List<(Vec2 hinge, Vec2 closedEnd, double r, CadArc arc)>();
@@ -244,7 +243,7 @@ namespace CadQC.Core.Extraction
             }
 
             // windows drawn as loose lines on window layers (no block)
-            var winSegs = dwg.Curves.Where(c => c.InsertIndex < 0 && _s.Matches(_s.WindowLayers, c.Layer) && !_s.IsExcluded(c.Layer))
+            var winSegs = dwg.Curves.Where(c => c.InsertIndex < 0 && _s.IsLayer(LayerCategory.Window, c.Layer))
                                     .SelectMany(c => c.Segments().Select(s => (s, c))).Where(t => inRegion(t.s.Mid)).ToList();
             foreach (var cluster in ClusterSegments(winSegs.Select(t => t.s).ToList(), 15))
             {
@@ -341,7 +340,7 @@ namespace CadQC.Core.Extraction
         private List<QcColumn> ExtractColumns(CadDrawing dwg, Func<Vec2, bool> inRegion)
         {
             var cols = new List<QcColumn>();
-            Func<CadEntity, bool> onColLayer = e => _s.Matches(_s.ColumnLayers, e.Layer) && !_s.IsExcluded(e.Layer);
+            Func<CadEntity, bool> onColLayer = e => _s.IsLayer(LayerCategory.Column, e.Layer);
 
             // closed outlines (polylines, hatch boundaries, solids)
             var loose = new List<Seg2>();
@@ -435,7 +434,7 @@ namespace CadQC.Core.Extraction
 
         private List<QcGrid> ExtractGrids(CadDrawing dwg, Func<Vec2, bool> inRegion)
         {
-            Func<CadEntity, bool> onGrid = e => _s.Matches(_s.GridLayers, e.Layer) && !_s.IsExcluded(e.Layer);
+            Func<CadEntity, bool> onGrid = e => _s.IsLayer(LayerCategory.Grid, e.Layer);
             var lines = dwg.Curves.Where(c => onGrid(c) && c.EntityType != "CIRCLE" && c.EntityType != "ARC")
                 .SelectMany(c => c.Segments().Select(s => (s, c.Layer, c.Handle)))
                 .Where(t => t.s.Length > 150 && (inRegion(t.s.A) || inRegion(t.s.B))).ToList();

@@ -7,16 +7,23 @@ WHAT IT IS
   in a report. Point it at a folder of DWG/DXF plans. DWG is converted
   to DXF automatically - nothing is exported by hand.
 
-TAB: "CAD QC" - panel "Technical QC"
-  Run CAD QC       pick the CAD folder -> checks every floor -> QC views,
-                   Issue Browser, HTML + Excel report, CAD markups
+TAB: "CAD QC"
+  panel "Technical QC"
+  Run CAD QC       pick the CAD folder -> (layer review, only for a new
+                   consultant) -> checks every floor -> QC views, Issue
+                   Browser, HTML + Excel report, CAD markups
   Issue Browser    list of issues; double-click = open QC plan, zoom,
                    select elements. "Accept" = not an error, stays
                    closed on the next run
-  Export Snapshot  model data to JSON for the command-line runner
-  Settings         this project's settings file (<model>_CadQC.json)
+  Layer Mapping    review / correct which CAD layers are walls, doors,
+                   windows, columns, grids, rooms. Saved per consultant
   Clear QC Views   delete every "QC - ..." view with its clouds and
                    linked CAD, clear QC comments
+  panel "Setup"
+  Settings         this project's settings file (<model>_CadQC.json)
+  Layer Dictionary open CadLayerDictionary.txt in Notepad
+  Export Snapshot  model data to JSON for the command-line runner
+  Version          version, install path, dictionary and profiles in use
 
 WHAT IT CHECKS (per floor)
   WALLS    missing / partly missing / extra in Revit / thickness
@@ -48,6 +55,22 @@ HOW FLOORS ARE MATCHED (no setup)
   Revit "Level 1, Level 2..." with Level 1 at +-0 = ground floor.
   Anything it cannot match is listed in the run log - add a row in the
   floor mapping (CAD file, optional plan title, Revit level).
+
+CAD LAYERS - WHICH LAYER IS WHAT (no guessing)
+  1. Consultant profile  - exact layer names, confirmed ONCE in the
+     review grid, then remembered. Stored in
+       %APPDATA%\RevitCadQC\CadProfiles
+     (outside the tool folder - reinstalling never deletes them; the team
+     package carries them). A drawing uses the profile that knows >= 60%
+     of its layers. Tick "Review the CAD layer mapping" in Run CAD QC to
+     look again and overwrite.
+  2. CadLayerDictionary.txt - token rules, Notepad-editable, FIRST MATCH
+     WINS (IGNORE before WALL so "A-WALL-PATT" is not a wall). Your copy:
+       %APPDATA%\RevitCadQC\CadLayerDictionary.txt
+     Shipped copy next to CadQC.Revit.dll. Missing/bad file = built-in.
+  3. Unknown layers are skipped and listed in the run log - never guessed.
+  If nothing is classed as wall, wall layers are detected from how the
+  lines behave (parallel pairs at wall spacing) and reported.
 
 HOW CAD IS LINED UP WITH THE MODEL (no setup)
   1. identity (CAD already in model coordinates)
@@ -100,17 +123,19 @@ BUILD + INSTALL (YOU)
     Revit may stay open, for the Add-in Manager (Faceless) loop.
   RUN_3_UNINSTALL.bat - remove from every Revit version.
 
-DWG CONVERTER (needed once per PC)
-  Free ODA File Converter:
-    https://www.opendesign.com/guestfiles/oda_file_converter
-  Found automatically. If AutoCAD is installed its accoreconsole.exe is
-  used instead. DXF files work without either. Converted DXFs are
-  cached in _RevitCadQC\.dxf-cache and only redone when the DWG changes.
+DWG READING - NOTHING TO INSTALL
+  DWG is read directly by ACadSharp 3.6.35 (built in, same pinned version
+  as AashirTools, so both add-ins load side by side without a clash).
+  Fallbacks for unusual files, used only if the built-in reader fails:
+  ODA File Converter (free) or AutoCAD's accoreconsole.exe, found
+  automatically. Readings are cached in _RevitCadQC\.dxf-cache and only
+  redone when the DWG changes.
 
 GIVE TO TEAM
   Run RUN_4_MAKE_TEAM_PACKAGE.bat -> creates RevitCadQC_TEAM_PACKAGE
   (+ .zip) on Desktop with the signed R20xx DLLs, .addin, certificate,
-  office default settings, INSTALL_FOR_TEAMMATE.BAT and READ ME FIRST.
+  office default settings, your CadLayerDictionary.txt, every confirmed
+  consultant profile, INSTALL_FOR_TEAMMATE.BAT and READ ME FIRST.
   Teammates DOUBLE-CLICK INSTALL_FOR_TEAMMATE.BAT. Done.
   (They do NOT need the source folder, bin, obj or the .NET SDK.)
   RUN_2_TEAMMATE_TRUST_CERT.bat - only trusts the certificate (the
@@ -127,11 +152,12 @@ TROUBLESHOOT
   blocks this and verifies the copy by hash + signature.
 - Script window closes / "$PSScriptRoot empty": the script TEXT was
   pasted into PowerShell. Double-click the RUN_ .bat instead.
-- "No DWG converter found": install ODA File Converter (above).
+- "Could not read <file>.dwg": the built-in reader failed on that DWG -
+  install ODA File Converter as fallback, or save the DWG as 2018.
 - "Could not tell which floor ...": name the file e.g. "2ND FLOOR
   PLAN.dwg" or add a floor mapping row.
-- "No double-line walls found": wall layers are named differently -
-  set WallLayers in Settings (or let auto-detection pick them).
+- "No double-line walls found": the consultant's wall layers are not
+  known - Layer Mapping, set them to Wall, Save profile.
 - "Alignment uncertain": no common grid names and too few matching
   walls. Name the grids the same as Revit, or set a manual offset.
 - Many "Extra in Revit" on one floor: wrong CAD mapped to that level -

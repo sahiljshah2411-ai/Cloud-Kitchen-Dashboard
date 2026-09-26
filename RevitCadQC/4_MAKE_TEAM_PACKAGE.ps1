@@ -5,6 +5,8 @@
  Creates  Desktop\RevitCadQC_TEAM_PACKAGE  (and a .zip of it) with:
    R2022\ R2025\ ...          signed DLLs for every version you built
    CadQC.addin                manifest
+   CadLayerDictionary.txt     your layer rules (if edited)
+   CadProfiles\               confirmed consultant layer profiles
    RevitCadQC_CodeSigning.cer certificate
    qc-settings.default.json   office layer standard + tolerances
    INSTALL_FOR_TEAMMATE.BAT   teammates DOUBLE-CLICK this
@@ -63,6 +65,15 @@ if ($versions.Count -eq 0) { Write-Host "  No signed build to package." -Foregro
 Copy-Item (Join-Path $Root "src\CadQC.Revit\CadQC.addin") $pkg
 Copy-Item $cer $pkg
 if (Test-Path (Join-Path $Root "config\qc-settings.sample.json")) { Copy-Item (Join-Path $Root "config\qc-settings.sample.json") (Join-Path $pkg "qc-settings.default.json") }
+# layer dictionary (your edited copy wins) + every confirmed consultant profile
+$dictMine = Join-Path $env:APPDATA "RevitCadQC\CadLayerDictionary.txt"
+if (Test-Path $dictMine) { Copy-Item $dictMine (Join-Path $pkg "CadLayerDictionary.txt") -Force }
+$profSrc = Join-Path $env:APPDATA "RevitCadQC\CadProfiles"
+if (Test-Path $profSrc) {
+    New-Item -ItemType Directory -Force -Path (Join-Path $pkg "CadProfiles") | Out-Null
+    Copy-Item (Join-Path $profSrc "*.json") (Join-Path $pkg "CadProfiles") -Force -ErrorAction SilentlyContinue
+    Write-Host "  added $((Get-ChildItem (Join-Path $pkg 'CadProfiles') -Filter *.json).Count) consultant profile(s)" -ForegroundColor Green
+}
 # the build PC's own default settings (office layer standard) win over the sample
 $mine = Join-Path $env:APPDATA "RevitCadQC\default_settings.json"
 if (Test-Path $mine) { Copy-Item $mine (Join-Path $pkg "qc-settings.default.json") -Force }
@@ -121,14 +132,19 @@ $sd = Join-Path $env:APPDATA "RevitCadQC"
 New-Item -ItemType Directory -Force -Path $sd | Out-Null
 $def = Join-Path $Root "qc-settings.default.json"
 if ((Test-Path $def) -and -not (Test-Path (Join-Path $sd "default_settings.json"))) { Copy-Item $def (Join-Path $sd "default_settings.json") }
-
-# 4. DWG converter
-$oda = Get-ChildItem "$env:ProgramFiles\ODA" -Recurse -Filter "ODAFileConverter.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
-if (-not $oda) {
-    Write-Host ""
-    Write-Host "  Install the free ODA File Converter so DWG files are read automatically:" -ForegroundColor Yellow
-    Write-Host "     https://www.opendesign.com/guestfiles/oda_file_converter" -ForegroundColor Yellow
+# layer dictionary (only if the teammate has none) + consultant profiles (never overwrite their own)
+$dict = Join-Path $Root "CadLayerDictionary.txt"
+if ((Test-Path $dict) -and -not (Test-Path (Join-Path $sd "CadLayerDictionary.txt"))) { Copy-Item $dict (Join-Path $sd "CadLayerDictionary.txt") }
+$pp = Join-Path $Root "CadProfiles"
+if (Test-Path $pp) {
+    $dstP = Join-Path $sd "CadProfiles"
+    New-Item -ItemType Directory -Force -Path $dstP | Out-Null
+    foreach ($pf in Get-ChildItem $pp -Filter *.json) { if (-not (Test-Path (Join-Path $dstP $pf.Name))) { Copy-Item $pf.FullName $dstP } }
+    Write-Host "  consultant profiles installed" -ForegroundColor Green
 }
+
+# 4. DWG files are read by the built-in reader (ACadSharp) - nothing else to install
+
 Write-Host ""
 Write-Host "  DONE. Start Revit -> tab 'CAD QC'." -ForegroundColor Green
 Read-Host "  Press Enter to close"
@@ -149,7 +165,7 @@ INSTALL
   2. DOUBLE-CLICK  INSTALL_FOR_TEAMMATE.BAT
      (do not open the .ps1 in PowerShell and paste it - run the .bat)
   3. When Windows asks to trust "RevitCadQC Code Signing", click YES.
-  4. Install the free ODA File Converter if the installer says so:
+  4. (Optional) ODA File Converter - only a fallback for unusual DWGs:
      https://www.opendesign.com/guestfiles/oda_file_converter
   5. Start Revit -> tab "CAD QC".
 

@@ -1,0 +1,41 @@
+# Revit CAD QC - layer dictionary
+# What every CAD layer is. Edit in Notepad, no rebuild needed.
+# Your copy wins:  %APPDATA%\RevitCadQC\CadLayerDictionary.txt
+# Shipped copy:    next to CadQC.Revit.dll (used when yours does not exist)
+# Bad/missing file = built-in rules from the QC settings.
+#
+# <CATEGORY>=<regex>|<regex>|...        (case-insensitive)
+# Categories: IGNORE WALL DOOR WINDOW COLUMN GRID ROOM DIMENSION ANNOTATION
+#
+# ORDER MATTERS - FIRST MATCH WINS. Specific rules before generic ones:
+#   "A-WALL-PATT" must hit IGNORE (hatch) before WALL,
+#   "A-DOOR-WALL" must hit DOOR before WALL,
+#   "COL-HATCH" must hit IGNORE before COLUMN.
+#
+# A consultant profile (layer review grid, saved once per consultant in
+# %APPDATA%\RevitCadQC\CadProfiles) overrides this file for exact layer names.
+
+# ---- never read ----
+IGNORE=HATCH|PATT|POCHE
+IGNORE=FURN|FURNITURE|FIXTURE|SANITARY|PLUMB|ELEC|HVAC|MEP|LIGHTING
+IGNORE=FLOOR.?PATT|FLOORING|TILE|PAVING|LANDSCAPE|TREE|PLANT|CAR\b|VEHICLE
+IGNORE=TITLE|BORDER|SHEET|VIEWPORT|VPORT|DEFPOINTS|NPLT|NO.?PLOT|REVISION|CLOUD
+IGNORE=XREF.?TEMP|TEMP|CONSTR|CONST.?LINE
+
+# ---- annotation that is read for rooms / notes but never as geometry ----
+DIMENSION=DIM|A-ANNO-DIMS|DIMENSION
+ANNOTATION=LEADER|NOTE|SYMB|TAG|LEVEL.?MARK
+
+# ---- openings (before WALL) ----
+DOOR=DOOR|A-DOOR|\bDR\b|SHUTTER|ROLLING|SLIDING.?DOOR
+WINDOW=WIN|WINDOW|A-GLAZ|GLAZ|VENT|\bV\b|LOUV|FIXED.?GLASS|CURTAIN.?WALL|\bCW\b
+
+# ---- structure ----
+COLUMN=COL|COLUMN|S-COLS|PILLAR|RCC.?COL
+GRID=GRID|AXIS|S-GRID|\bC.?L\b|CENTER.?LINE|CENTRE.?LINE
+
+# ---- walls ----
+WALL=WALL|MASONRY|BRICK|BLOCK|PARTITION|A-WALL|RCC.?WALL|SHEAR|CORE.?WALL|DRY.?WALL|GYPSUM|AAC|FLY.?ASH
+
+# ---- room names ----
+ROOM=ROOM|AREA.?IDEN|A-AREA|SPACE|RM.?NAME|NAME|TEXT|ANNO

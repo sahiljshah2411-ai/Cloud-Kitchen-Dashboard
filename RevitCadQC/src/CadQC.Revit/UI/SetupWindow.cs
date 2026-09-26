@@ -32,6 +32,9 @@ namespace CadQC.Revit.UI
         private readonly TextBox _thkTol, _posTol, _openTol, _minLen, _colTol;
         private readonly ComboBox _widthMode = new ComboBox { Width = 90, Margin = new Thickness(4, 2, 12, 2) };
         private readonly TextBlock _converter = Ui.Label("", 11, false, Ui.Muted);
+        private readonly CheckBox _review = Ui.Check("Review the CAD layer mapping before running (otherwise only for a new consultant)", false);
+
+        public bool ForceLayerReview => _review.IsChecked == true;
 
         public SetupWindow(QcSettings settings, string[] levelNames, string settingsPath)
         {
@@ -90,6 +93,7 @@ namespace CadQC.Revit.UI
                 _sub,
                 Ui.Label("Output folder (empty = <CAD folder>\\_RevitCadQC)"),
                 Ui.Row(_out, Ui.Button("Browse…", () => { var f = Ui.PickFolder(_out.Text, "Where to write the QC reports"); if (f != null) _out.Text = f; })),
+                _review,
                 _converter)));
 
             var checks = new WrapPanel();
@@ -126,10 +130,8 @@ namespace CadQC.Revit.UI
             Loaded += (s, e) =>
             {
                 var conv = CadQC.Core.Conversion.DwgConverter.FindOdaConverter() ?? CadQC.Core.Conversion.DwgConverter.FindAcCoreConsole();
-                _converter.Text = conv != null
-                    ? "DWG converter found: " + conv
-                    : "No DWG converter found: install the free ODA File Converter (opendesign.com) or AutoCAD. DXF files work without it.";
-                _converter.Foreground = conv != null ? Ui.Muted : Ui.Critical;
+                _converter.Text = "DWG files are read directly by the built-in reader (ACadSharp)." +
+                                  (conv != null ? " Fallback converter: " + conv : " Optional fallback for unusual DWGs: free ODA File Converter.");
             };
         }
 

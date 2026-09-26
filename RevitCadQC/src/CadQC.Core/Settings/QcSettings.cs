@@ -185,7 +185,22 @@ namespace CadQC.Core.Settings
             return r.IsMatch(value);
         }
 
-        public bool IsExcluded(string layer) => Matches(ExcludeLayers, layer);
+        /// <summary>Runtime layer classifier (profile / dictionary / built-in rules). Not saved in the JSON.</summary>
+        [JsonIgnore]
+        public LayerClassifier Layers
+        {
+            get => _layers ?? (_layers = LayerClassifier.FromSettings(this));
+            set => _layers = value;
+        }
+        private LayerClassifier _layers;
+
+        /// <summary>Layer mapping confirmed in the review grid for this run only ("Run without saving").</summary>
+        [JsonIgnore]
+        public CadLayerProfile SessionProfile { get; set; }
+
+        public bool IsLayer(LayerCategory category, string layer) => Layers.Classify(layer) == category;
+
+        public bool IsExcluded(string layer) => Layers.Classify(layer) == LayerCategory.Ignore;
     }
 
     public enum AlignmentMode

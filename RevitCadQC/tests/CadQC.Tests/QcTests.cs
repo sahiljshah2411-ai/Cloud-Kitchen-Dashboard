@@ -98,7 +98,7 @@ namespace CadQC.Tests
             Assert.DoesNotContain(open, i => i.Category == IssueCategory.Alignment);
 
             // outputs
-            foreach (var p in new[] { "QC_Report.html", "QC_Issues.csv", "QC_Issues.xlsx", "qc_report.json", "CAD_Markup/2ND FLOOR PLAN_QC_markup.dxf", "CAD_Markup/2ND FLOOR PLAN_QC_markup.scr" })
+            foreach (var p in new[] { "QC_Report.html", "QC_Issues.csv", "QC_Issues.xlsx", "qc_report.json", "CAD_Markup/2ND FLOOR PLAN_QC_markup.dxf", "CAD_Markup/2ND FLOOR PLAN_QC_markup.dwg", "CAD_Markup/2ND FLOOR PLAN_QC_markup.scr" })
                 Assert.True(File.Exists(Path.Combine(_dir, "out", p)), p);
             var sampleOut = Environment.GetEnvironmentVariable("CADQC_SAMPLE_OUT");
             if (!string.IsNullOrEmpty(sampleOut))
@@ -115,6 +115,11 @@ namespace CadQC.Tests
             // markup DXF must be readable again and sit at the CAD location of the issues
             var markup = new DxfReader().Read(Path.Combine(_dir, "out", "CAD_Markup", "2ND FLOOR PLAN_QC_markup.dxf"));
             Assert.Contains(markup.Curves, c => c.Layer == "QC_CRITICAL");
+            // and the DWG copy opens as a real DWG with the QC layers
+            ACadSharp.CadDocument dwgDoc;
+            using (var ms = File.OpenRead(Path.Combine(_dir, "out", "CAD_Markup", "2ND FLOOR PLAN_QC_markup.dwg"))) dwgDoc = ACadSharp.IO.DwgReader.Read(ms);
+            Assert.Contains(dwgDoc.Layers, l => l.Name == "QC_CRITICAL");
+            Assert.Contains(dwgDoc.Entities, e => e.Layer.Name == "QC_CRITICAL");
         }
 
         [Fact]
@@ -124,6 +129,81 @@ namespace CadQC.Tests
             var r2 = RunEngine();
             Assert.DoesNotContain(r2.Issues, i => i.Status == IssueStatus.New);
             Assert.Contains(r2.Issues, i => i.Status == IssueStatus.Open);
+        }
+
+        [Fact]
+        public void Dwg_is_read_directly_without_external_converter()
+        {
+            // make a real DWG from the test plan with ACadSharp, then QC the DWG only
+            var dxf = Path.Combine(Path.GetTempPath(), "cadqc_src_" + Guid.NewGuid().ToString("N") + ".dxf");
+            File.WriteAllText(dxf, TestPlan.BuildDxf());
+            var doc = ACadSharp.IO.DxfReader.Read(dxf);
+            doc.CreateDefaults(); // the hand-written test DXF has no OBJECTS section; a real DWG always does
+            using (var os = File.Create(Path.Combine(_dir, "2ND FLOOR PLAN.dwg"))) ACadSharp.IO.DwgWriter.Write(os, doc);
+            File.Delete(dxf);
+
+            var s = new QcSettings { CadFolder = _dir, OutputFolder = Path.Combine(_dir, "out"), OdaConverterPath = "", AcCoreConsolePath = "" };
+            var r = new QcEngine(s).Run(TestPlan.BuildSnapshot());
+            foreach (var l in r.Log) _out.WriteLine(l);
+            foreach (var i in r.Issues) _out.WriteLine(i.ToString());
+            Assert.Contains(r.Log, l => l.Contains("ACadSharp"));
+            var f = Assert.Single(r.Floors);
+            Assert.True(f.Alignment.Reliable, f.Alignment.ToString());
+            Assert.Contains(r.Issues, i => i.IssueType == IssueType.ThicknessMismatch && i.Title.Contains("230") && i.Title.Contains("200"));
+            Assert.Contains(r.Issues, i => i.Category == IssueCategory.Wall && i.IssueType == IssueType.MissingInRevit);
+            Assert.Contains(r.Issues, i => i.Category == IssueCategory.Door && i.IssueType == IssueType.WidthMismatch);
+            Assert.Contains(r.Issues, i => i.Category == IssueCategory.Window && i.IssueType == IssueType.MissingInRevit);
+            Assert.Contains(r.Issues, i => i.Category == IssueCategory.Column && i.IssueType == IssueType.PositionOffset);
+        }
+
+        [Theory]
+        [InlineData("A-WALL", LayerCategory.Wall)]
+        [InlineData("A-WALL-PATT", LayerCategory.Ignore)]
+        [InlineData("A-DOOR", LayerCategory.Door)]
+        [InlineData("A-GLAZ", LayerCategory.Window)]
+        [InlineData("S-COLS", LayerCategory.Column)]
+        [InlineData("S-GRID", LayerCategory.Grid)]
+        [InlineData("A-ANNO-DIMS", LayerCategory.Dimension)]
+        [InlineData("A-AREA-IDEN", LayerCategory.Room)]
+        [InlineData("FURNITURE", LayerCategory.Ignore)]
+        [InlineData("230 BRICK WALL", LayerCategory.Wall)]
+        [InlineData("SOMETHING ODD", LayerCategory.Unknown)]
+        public void Dictionary_file_classifies_layers(string layer, LayerCategory expected)
+        {
+            var c = new LayerClassifier();
+            Assert.True(c.LoadDictionary(Path.Combine(AppContext.BaseDirectory, "config", "CadLayerDictionary.txt")));
+            Assert.Equal(expected, c.Classify(layer));
+        }
+
+        [Fact]
+        public void Consultant_profile_maps_unusual_layer_names()
+        {
+            // a consultant who draws walls on "Z-01" and columns on "Z-02": no rule knows these names
+            var dxf = TestPlan.BuildDxf().Replace("\nA-WALL\n", "\nZ-01\n").Replace("\nS-COLS\n", "\nZ-02\n");
+            File.WriteAllText(Path.Combine(_dir, "2ND FLOOR PLAN.dxf"), dxf);
+            var profDir = Path.Combine(_dir, "profiles");
+            Environment.SetEnvironmentVariable("CADQC_PROFILE_DIR", profDir);
+            try
+            {
+                var s = new QcSettings { CadFolder = _dir, OutputFolder = Path.Combine(_dir, "out") };
+                var scan = LayerScanner.Scan(s);
+                var layers = LayerScanner.Merge(scan, s.Layers);
+                Assert.Contains(layers, l => l.Name == "Z-01" && l.RuleCategory == LayerCategory.Unknown);
+
+                // what the review grid saves after the user picks Wall / Column
+                var p = new CadLayerProfile { Name = "Consultant Z" };
+                foreach (var l in layers) p.Layers[l.Name] = l.RuleCategory.ToString();
+                p.Layers["Z-01"] = "Wall";
+                p.Layers["Z-02"] = "Column";
+                CadProfileStore.Save(p);
+
+                var r = new QcEngine(new QcSettings { CadFolder = _dir, OutputFolder = Path.Combine(_dir, "out") }).Run(TestPlan.BuildSnapshot());
+                foreach (var l in r.Log) _out.WriteLine(l);
+                Assert.Contains(r.Log, l => l.Contains("Consultant Z"));
+                Assert.Contains(r.Issues, i => i.IssueType == IssueType.ThicknessMismatch);
+                Assert.Contains(r.Issues, i => i.Category == IssueCategory.Column && i.IssueType == IssueType.PositionOffset);
+            }
+            finally { Environment.SetEnvironmentVariable("CADQC_PROFILE_DIR", null); }
         }
 
         [Fact]

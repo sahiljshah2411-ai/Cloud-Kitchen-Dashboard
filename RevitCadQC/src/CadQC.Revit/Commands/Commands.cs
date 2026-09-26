@@ -33,6 +33,21 @@ namespace CadQC.Revit.Commands
 
             try
             {
+                // 0. which CAD layers are what: saved consultant profile, or review once
+                var scan = ProgressWindow.Run("Reading CAD layers", (p, ct) => LayerScanner.Scan(settings, p, ct));
+                if (scan == null) return Result.Cancelled;
+                var readable = scan.Where(f => f.Error == null).ToList();
+                var review = dlg.ForceLayerReview ? readable : readable.Where(f => f.Profile == null).ToList();
+                if (review.Count > 0)
+                {
+                    var name = review.Select(f => f.Profile?.Name).FirstOrDefault(n => n != null)
+                               ?? new DirectoryInfo(settings.CadFolder).Name;
+                    var lr = new LayerReviewWindow(LayerScanner.Merge(review, settings.Layers), name, review.Select(f => Path.GetFileName(f.Path)));
+                    new System.Windows.Interop.WindowInteropHelper(lr) { Owner = data.Application.MainWindowHandle };
+                    if (lr.ShowDialog() != true) return Result.Cancelled;
+                    settings.SessionProfile = lr.Result;
+                }
+
                 // 1. Revit model → neutral snapshot (Revit API thread)
                 var extractor = new RevitExtractor(doc, settings.CutPlaneHeight);
                 var snap = extractor.Extract(settings.IncludeLinkedModels);
@@ -155,5 +170,91 @@ namespace CadQC.Revit.Commands
     {
         public bool IsCommandAvailable(UIApplication app, CategorySet selected) =>
             app.ActiveUIDocument?.Document != null && !app.ActiveUIDocument.Document.IsFamilyDocument;
+    }
+}
+
+namespace CadQC.Revit.Commands
+{
+    /// <summary>Review / edit the consultant layer profile for the project's CAD folder without running QC.</summary>
+    [Transaction(TransactionMode.ReadOnly)]
+    public sealed class LayerMappingCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData data, ref string message, ElementSet elements)
+        {
+            var doc = data.Application.ActiveUIDocument?.Document;
+            var settings = SettingsStore.Load(doc);
+            var folder = settings.CadFolder;
+            if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+            {
+                folder = Ui.PickFolder(folder, "Folder with the CAD plans (DWG/DXF)");
+                if (folder == null) return Result.Cancelled;
+                settings.CadFolder = folder;
+                SettingsStore.Save(doc, settings);
+            }
+            try
+            {
+                var scan = ProgressWindow.Run("Reading CAD layers", (p, ct) => LayerScanner.Scan(settings, p, ct));
+                if (scan == null) return Result.Cancelled;
+                var readable = scan.Where(f => f.Error == null).ToList();
+                if (readable.Count == 0)
+                {
+                    TaskDialog.Show("CAD QC", "No readable DWG/DXF in\n" + folder + "\n\n" + string.Join("\n", scan.Select(f => Path.GetFileName(f.Path) + ": " + f.Error)));
+                    return Result.Failed;
+                }
+                var name = readable.Select(f => f.Profile?.Name).FirstOrDefault(n => n != null) ?? new DirectoryInfo(folder).Name;
+                var w = new LayerReviewWindow(LayerScanner.Merge(readable, settings.Layers), name, readable.Select(f => Path.GetFileName(f.Path)));
+                new System.Windows.Interop.WindowInteropHelper(w) { Owner = data.Application.MainWindowHandle };
+                w.ShowDialog();
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                TaskDialog.Show("CAD QC", "Layer mapping failed:\n" + ex.Message);
+                return Result.Failed;
+            }
+        }
+    }
+
+    /// <summary>Opens CadLayerDictionary.txt in Notepad (copies the shipped one to %APPDATA% first, so edits survive updates).</summary>
+    [Transaction(TransactionMode.ReadOnly)]
+    public sealed class LayerDictionaryCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData data, ref string message, ElementSet elements)
+        {
+            var user = Path.Combine(SettingsStore.AppDataFolder, CadLayerDictionary.FileName);
+            if (!File.Exists(user))
+            {
+                var shipped = Path.Combine(Path.GetDirectoryName(typeof(App).Assembly.Location) ?? "", CadLayerDictionary.FileName);
+                if (File.Exists(shipped)) File.Copy(shipped, user);
+                else File.WriteAllText(user, "# Revit CAD QC layer dictionary\r\n# <CATEGORY>=<regex>|<regex>  - first match wins\r\nWALL=WALL\r\n");
+            }
+            Process.Start(new ProcessStartInfo("notepad.exe", "\"" + user + "\""));
+            return Result.Succeeded;
+        }
+    }
+
+    [Transaction(TransactionMode.ReadOnly)]
+    public sealed class VersionCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData data, ref string message, ElementSet elements)
+        {
+            var dict = CadLayerDictionary.FindFile() ?? "(built-in rules)";
+            var profiles = CadProfileStore.LoadAll();
+            var oda = CadQC.Core.Conversion.DwgConverter.FindOdaConverter() ?? CadQC.Core.Conversion.DwgConverter.FindAcCoreConsole();
+            var td = new TaskDialog("Revit CAD QC")
+            {
+                MainInstruction = "Revit CAD QC " + App.Version,
+                MainContent =
+                    "Add-in:  " + typeof(App).Assembly.Location + "\n" +
+                    "Revit:  " + data.Application.Application.VersionName + "\n\n" +
+                    "DWG reading:  built in (ACadSharp)" + (oda != null ? "\nFallback converter:  " + oda : "") + "\n" +
+                    "Layer dictionary:  " + dict + "\n" +
+                    "Consultant profiles (" + profiles.Count + "):  " + CadProfileStore.Folder +
+                    (profiles.Count > 0 ? "\n   " + string.Join(", ", profiles.Select(p => p.Name)) : "") + "\n" +
+                    "Office default settings:  " + SettingsStore.DefaultPath
+            };
+            td.Show();
+            return Result.Succeeded;
+        }
     }
 }

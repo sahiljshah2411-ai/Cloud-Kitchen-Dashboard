@@ -10,7 +10,8 @@ namespace CadQC.Core.Conversion
 {
     /// <summary>
     /// Converts DWG files to ASCII DXF automatically so the user never has to run DXFOUT by hand.
-    /// Converter chain (first one found wins):
+    /// Converter chain (first one that works wins):
+    ///   0. ACadSharp, in-process (built in, nothing to install; DWG R14 to 2018+)
     ///   1. ODA File Converter (free, https://www.opendesign.com/guestfiles/oda_file_converter)
     ///   2. AutoCAD Core Console (accoreconsole.exe, ships with every AutoCAD / AutoCAD-based product)
     ///   3. LibreDWG dwg2dxf (if on PATH)
@@ -35,11 +36,18 @@ namespace CadQC.Core.Conversion
         }
 
         public string ConverterDescription =>
+            "ACadSharp (built in)" + (_odaPath != null || _acCorePath != null ? ", fallback " : "") +
+            (_odaPath != null ? "ODA File Converter: " + _odaPath :
+            _acCorePath != null ? "AutoCAD Core Console: " + _acCorePath : "");
+
+        public string ExternalConverterDescription =>
             _odaPath != null ? "ODA File Converter: " + _odaPath :
             _acCorePath != null ? "AutoCAD Core Console: " + _acCorePath :
             FindOnPath("dwg2dxf") != null ? "LibreDWG dwg2dxf" : "none";
 
-        public bool HasConverter => _odaPath != null || _acCorePath != null || FindOnPath("dwg2dxf") != null;
+        public bool HasConverter => true;
+
+        public bool HasExternalConverter => _odaPath != null || _acCorePath != null || FindOnPath("dwg2dxf") != null;
 
         /// <summary>Returns a DXF path for any DWG or DXF input (DXF inputs are returned unchanged).</summary>
         public string EnsureDxf(string cadPath)
@@ -56,6 +64,8 @@ namespace CadQC.Core.Conversion
             }
 
             var errors = new List<string>();
+            try { if (ConvertWithAcadSharp(cadPath, target)) return target; }
+            catch (Exception ex) { errors.Add("ACadSharp: " + ex.Message); }
             if (_odaPath != null)
             {
                 try { if (ConvertWithOda(cadPath, target)) return target; }
@@ -77,11 +87,33 @@ namespace CadQC.Core.Conversion
                 catch (Exception ex) { errors.Add("dwg2dxf: " + ex.Message); }
             }
 
-            if (!HasConverter)
+            if (!HasExternalConverter)
                 throw new InvalidOperationException(
-                    "No DWG converter found. Install the free ODA File Converter (https://www.opendesign.com/guestfiles/oda_file_converter) " +
+                    "The built-in DWG reader could not read this file (" + string.Join(" | ", errors) + ") and no external converter is installed. Install the free ODA File Converter (https://www.opendesign.com/guestfiles/oda_file_converter) " +
                     "or AutoCAD, or set 'OdaConverterPath' in the QC settings. DXF files in the folder are still checked.");
             throw new InvalidOperationException("DWG conversion failed for " + Path.GetFileName(cadPath) + ": " + string.Join(" | ", errors));
+        }
+
+        /// <summary>Reads the DWG with ACadSharp and writes it back as ASCII DXF for the QC reader.</summary>
+        private bool ConvertWithAcadSharp(string dwg, string target)
+        {
+            var warnings = 0;
+            ACadSharp.CadDocument doc;
+            using (var fs = new FileStream(dwg, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                doc = ACadSharp.IO.DwgReader.Read(fs, new ACadSharp.IO.DwgReaderConfiguration { CrcCheck = false },
+                    (s, e) => { if (e.NotificationType == ACadSharp.IO.NotificationType.Error) warnings++; });
+            }
+            if (doc == null) throw new InvalidOperationException("no document");
+            var tmp = target + ".tmp";
+            // write through our own stream: the path overload keeps the file handle open, which on Windows blocks the move below
+            using (var os = new FileStream(tmp, FileMode.Create, FileAccess.Write, FileShare.None))
+                ACadSharp.IO.DxfWriter.Write(os, doc, false, new ACadSharp.IO.DxfWriterConfiguration { WriteAllHeaderVariables = true }, null);
+            if (!File.Exists(tmp) || new FileInfo(tmp).Length == 0) throw new InvalidOperationException("empty DXF");
+            if (File.Exists(target)) File.Delete(target);
+            File.Move(tmp, target);
+            Log.Add("Read DWG with ACadSharp: " + Path.GetFileName(dwg) + (warnings > 0 ? $" ({warnings} read warnings)" : ""));
+            return true;
         }
 
         private bool ConvertWithOda(string dwg, string target)
@@ -135,9 +167,32 @@ namespace CadQC.Core.Conversion
             finally { TryDelete(scr); }
         }
 
-        /// <summary>Converts a DXF (e.g. the QC markup) to DWG with ODA. Returns null when not possible.</summary>
+        /// <summary>Converts a DXF (e.g. the QC markup) to DWG: ACadSharp first, ODA as fallback. Returns null when not possible.</summary>
         public string DxfToDwg(string dxf, string outFolder)
         {
+            Directory.CreateDirectory(outFolder);
+            var outDwg = Path.Combine(outFolder, Path.GetFileNameWithoutExtension(dxf) + ".dwg");
+            try
+            {
+                ACadSharp.CadDocument src;
+                using (var fs = new FileStream(dxf, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    src = ACadSharp.IO.DxfReader.Read(fs);
+                // the markup DXF is minimal R12, which ACadSharp cannot write as DWG: copy it into a fresh (2018) document
+                var doc = new ACadSharp.CadDocument();
+                foreach (var l in src.Layers)
+                    if (!doc.Layers.Contains(l.Name)) doc.Layers.Add(new ACadSharp.Tables.Layer(l.Name) { Color = l.Color });
+                foreach (var e in src.Entities.ToList())
+                {
+                    var c = (ACadSharp.Entities.Entity)e.Clone();
+                    c.Layer = doc.Layers[e.Layer.Name];
+                    c.LineType = doc.LineTypes["ByLayer"];
+                    doc.Entities.Add(c);
+                }
+                using (var os = new FileStream(outDwg, FileMode.Create, FileAccess.Write, FileShare.None))
+                    ACadSharp.IO.DwgWriter.Write(os, doc);
+                if (File.Exists(outDwg) && new FileInfo(outDwg).Length > 0) return outDwg;
+            }
+            catch (Exception ex) { Log.Add("Markup DWG via ACadSharp failed, trying ODA: " + ex.Message); }
             if (_odaPath == null) return null;
             string stageIn = Path.Combine(Path.GetTempPath(), "cadqc_min_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(stageIn);
