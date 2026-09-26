@@ -1,6 +1,8 @@
 bin/
 obj/
 *.user
+build_R*.log
+cert/
 .vs/
 TestResults/
 _RevitCadQC/

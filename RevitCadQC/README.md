@@ -32,18 +32,21 @@ A sample of every output, made from the test drawing, is in [`docs/sample-output
 
 # Install
 
+Plain-text guide with every step: [`README.txt`](README.txt).
+
 1. Install the free **ODA File Converter** (https://www.opendesign.com/guestfiles/oda_file_converter). It is what turns DWG into DXF automatically. If AutoCAD is installed, its `accoreconsole.exe` is used instead. DXF files work without either.
-2. Install the **.NET 8 SDK** (https://dotnet.microsoft.com/download) to build.
-3. In PowerShell, from this folder:
+2. Close Revit and double-click **`RUN_1_BUILD_AND_INSTALL.bat`**. It installs a user-local .NET 8 SDK if needed (no admin), runs the tests, builds for every Revit version on the PC, signs the DLLs with a self-signed certificate, installs, and verifies the copy by hash and signature.
+3. Start Revit. The **CAD QC** tab appears.
 
-```powershell
-.\scripts\build.ps1               # runs the tests, builds for Revit 2024, 2025 and 2026, and the command-line tool
-.\scripts\install.ps1             # copies the add-in into %AppData%\Autodesk\Revit\Addins\<version>
-```
+| File | What it does |
+|---|---|
+| `RUN_1_BUILD_AND_INSTALL.bat` | Build, sign, install, verify. Run after every change. Refuses to run while Revit is open. |
+| `RUN_BUILD_ONLY_R2025.bat`, `RUN_BUILD_ONLY_R2022.bat` | Build only into `src\CadQC.Revit\bin\R20xx\`, Revit may stay open (Add-in Manager loop). |
+| `RUN_2_TEAMMATE_TRUST_CERT.bat` | Trust the signing certificate on another PC. |
+| `RUN_3_UNINSTALL.bat` | Remove from every Revit version. |
+| `RUN_4_MAKE_TEAM_PACKAGE.bat` | Create `RevitCadQC_TEAM_PACKAGE` (+ zip) on the Desktop. Teammates double-click `INSTALL_FOR_TEAMMATE.BAT`. |
 
-4. Start Revit. The **CAD QC** tab appears. The first time, Revit asks whether to load the add-in. Choose "Always Load".
-
-Supported: Revit 2024 (.NET Framework 4.8), Revit 2025 and 2026 (.NET 8). Uninstall with `.\scripts\install.ps1 -Uninstall`.
+Supported: Revit 2022, 2023, 2024 (.NET Framework 4.8), 2025 and 2026 (.NET 8). Manual build: `dotnet build src\CadQC.Revit\CadQC.Revit.csproj -c R2025`.
 
 # Use
 
@@ -148,7 +151,7 @@ RevitCadQC/
   src/CadQC.Cli/         command-line runner
   tests/CadQC.Tests/     tests on a synthetic 2nd floor plan with planted errors
   config/                default settings
-  scripts/               build and install
+  RUN_*.bat, *.ps1       build, sign, install, team package
   docs/sample-output/    every output produced from the test drawing
 ```
 

@@ -1,14 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
-    One project, several Revit versions. Pick the version at build time:
-      dotnet build -c Release -p:RevitVersion=2024   (Revit 2024, .NET Framework 4.8)
-      dotnet build -c Release -p:RevitVersion=2025   (Revit 2025, .NET 8)   [default]
-      dotnet build -c Release -p:RevitVersion=2026   (Revit 2026, .NET 8)
+    One project, one build configuration per Revit version (same pattern as AashirTools):
+      dotnet build -c R2022    Revit 2022  (.NET Framework 4.8)  -> bin\R2022\
+      dotnet build -c R2023    Revit 2023  (.NET Framework 4.8)  -> bin\R2023\
+      dotnet build -c R2024    Revit 2024  (.NET Framework 4.8)  -> bin\R2024\
+      dotnet build -c R2025    Revit 2025  (.NET 8)              -> bin\R2025\
+      dotnet build -c R2026    Revit 2026  (.NET 8)              -> bin\R2026\
+    Debug/Release still work and build Revit 2025 (or -p:RevitVersion=XXXX).
   -->
   <PropertyGroup>
+    <Configurations>R2022;R2023;R2024;R2025;R2026;Debug;Release</Configurations>
+    <RevitVersion Condition="'$(RevitVersion)' == '' And $(Configuration.StartsWith('R20'))">$(Configuration.Substring(1))</RevitVersion>
     <RevitVersion Condition="'$(RevitVersion)' == ''">2025</RevitVersion>
-    <TargetFramework Condition="'$(RevitVersion)' == '2024'">net48</TargetFramework>
-    <TargetFramework Condition="'$(RevitVersion)' != '2024'">net8.0-windows</TargetFramework>
+    <Optimize Condition="$(Configuration.StartsWith('R20'))">true</Optimize>
+    <DebugType>portable</DebugType>
+    <TargetFramework Condition="'$(RevitVersion)' == '2022' Or '$(RevitVersion)' == '2023' Or '$(RevitVersion)' == '2024'">net48</TargetFramework>
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net8.0-windows</TargetFramework>
     <!-- Normal Windows build uses the WindowsDesktop SDK. On Linux/macOS (CI compile check only) the WPF/WinForms
          reference assemblies are taken from NuGet instead, because no XAML is used. -->
     <UseWPF Condition="'$(OS)' == 'Windows_NT'">true</UseWPF>
@@ -17,7 +24,8 @@
     <RootNamespace>CadQC.Revit</RootNamespace>
     <AssemblyName>CadQC.Revit</AssemblyName>
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
-    <OutputPath>bin\$(Configuration)\$(RevitVersion)\</OutputPath>
+    <OutputPath Condition="$(Configuration.StartsWith('R20'))">bin\$(Configuration)\</OutputPath>
+    <OutputPath Condition="!$(Configuration.StartsWith('R20'))">bin\$(Configuration)\$(RevitVersion)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateDependencyFile>false</GenerateDependencyFile>
